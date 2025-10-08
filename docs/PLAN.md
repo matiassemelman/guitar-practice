@@ -195,7 +195,6 @@ Construir "Deliberate Guitar" siguiendo la filosofía de **funcional primero, re
   - Verificar que stats calculan correctamente
   - Validar que formulario toma <30s
   - Verificar feedback inteligente funciona
-  - Probar exportación JSON
 
 ### Polish Visual
 - [ ] **Paso 23:** Refinamiento de UI
@@ -221,7 +220,6 @@ Antes de considerar el MVP completo, verificar:
 - [ ] Puedo filtrar sesiones por rango de fechas
 - [ ] Recibo feedback motivador después de guardar
 - [ ] El gráfico de BPM muestra evolución en el tiempo
-- [ ] Puedo exportar todas mis sesiones a JSON
 - [ ] La app funciona en producción (Vercel + Neon)
 - [ ] El formulario se completa en menos de 30 segundos
 - [ ] El diseño visual es limpio y motivador
