@@ -97,16 +97,16 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen">
       {/* Container principal */}
       <div className="max-w-[1600px] mx-auto p-6 space-y-6">
 
         {/* Header */}
         <header className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold gradient-text mb-2">
             Deliberate Guitar
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-300">
             Tracking de práctica deliberada - Growth Mindset + Kaizen
           </p>
         </header>
@@ -128,13 +128,13 @@ export default function Home() {
           <section className="min-h-[600px]">
             {error ? (
               // Mensaje de error
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                <p className="text-red-800 mb-4">
+              <div className="glass-card border-neon-pink/50 rounded-2xl p-6 text-center">
+                <p className="text-red-400 mb-4">
                   ⚠️ {error}
                 </p>
                 <button
                   onClick={fetchSessions}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                  className="px-6 py-2 bg-gradient-to-r from-neon-pink to-neon-magenta text-white rounded-lg hover:glow-pink transition-all duration-300"
                 >
                   Reintentar
                 </button>

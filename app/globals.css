@@ -1,20 +1,49 @@
 @import "tailwindcss";
 
 /**
- * Estilos globales para Deliberate Guitar
- * Paleta: Neutros legibles, diseño minimalista, desktop-first
+ * DELIBERATE GUITAR - Tema Cyberpunk 2077
+ * Paleta: Neon magenta/cyan sobre fondos ultra oscuros
+ * Inspiración: Blade Runner, Matrix, NFT platforms
  */
 
-:root {
-  --background: #f9fafb; /* gray-50 */
-  --foreground: #111827; /* gray-900 */
-  --primary: #2563eb; /* blue-600 */
-  --primary-hover: #1d4ed8; /* blue-700 */
+/* ========================================
+   TEMA TAILWIND (colores custom)
+   ======================================== */
+@theme {
+  /* Paleta Cyberpunk principal */
+  --color-neon-magenta: #FF00FF;    /* Primary - Neon magenta */
+  --color-neon-cyan: #00FFFF;       /* Secondary - Neon cyan */
+  --color-neon-yellow: #FFFF00;     /* Accent 1 - Electric yellow */
+  --color-neon-pink: #FF00AA;       /* Accent 2 - Hot pink */
+  --color-neon-purple: #9D00FF;     /* Purple variant */
+  --color-neon-green: #00FF41;      /* Matrix green */
 }
 
+/* ========================================
+   VARIABLES CSS GLOBALES
+   ======================================== */
+:root {
+  /* Gradiente de fondo cyberpunk (ultra dark con hint de blue) */
+  --bg-main: linear-gradient(135deg, #000000 0%, #0a0a1a 25%, #1a0033 50%, #0a0a1a 75%, #000000 100%);
+
+  /* Glassmorphism tokens */
+  --glass-bg: rgba(255, 0, 255, 0.03);
+  --glass-border: rgba(255, 0, 255, 0.15);
+  --glass-blur: 20px;
+
+  /* Colores de texto */
+  --foreground: #f0f0f0;           /* Casi blanco */
+  --foreground-muted: #a0a0a0;     /* Gris claro */
+  --foreground-dim: #606060;       /* Gris medio */
+}
+
+/* ========================================
+   ESTILOS GLOBALES
+   ======================================== */
 body {
+  background: var(--bg-main);
+  background-attachment: fixed;
   color: var(--foreground);
-  background: var(--background);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -22,14 +51,87 @@ body {
   line-height: 1.6;
 }
 
-/* Smooth scrolling para navegación interna */
 html {
   scroll-behavior: smooth;
 }
 
-/* Focus visible mejorado para accesibilidad */
+/* Focus visible mejorado con glow cyberpunk */
 *:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--color-neon-cyan);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: 4px;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.6), 0 0 30px rgba(0, 255, 255, 0.3);
+}
+
+/* ========================================
+   UTILITY CLASSES CUSTOM
+   ======================================== */
+
+/* Glassmorphism card cyberpunk */
+.glass-card {
+  backdrop-filter: blur(var(--glass-blur));
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 0, 255, 0.1);
+}
+
+/* Glow effects cyberpunk */
+.glow-magenta {
+  box-shadow:
+    0 0 20px rgba(255, 0, 255, 0.6),
+    0 0 40px rgba(255, 0, 255, 0.3),
+    0 0 60px rgba(255, 0, 255, 0.1);
+}
+
+.glow-cyan {
+  box-shadow:
+    0 0 20px rgba(0, 255, 255, 0.6),
+    0 0 40px rgba(0, 255, 255, 0.3),
+    0 0 60px rgba(0, 255, 255, 0.1);
+}
+
+.glow-pink {
+  box-shadow:
+    0 0 20px rgba(255, 0, 170, 0.6),
+    0 0 40px rgba(255, 0, 170, 0.3);
+}
+
+.glow-yellow {
+  box-shadow:
+    0 0 20px rgba(255, 255, 0, 0.6),
+    0 0 40px rgba(255, 255, 0, 0.3);
+}
+
+/* Gradient text cyberpunk (magenta → cyan) */
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-neon-magenta) 0%, var(--color-neon-cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Scanline effect subtle (opcional para intensificar cyberpunk) */
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.scanlines::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 255, 255, 0.03) 50%,
+    transparent 100%
+  );
+  animation: scan 8s linear infinite;
+  pointer-events: none;
+  z-index: 9999;
 }

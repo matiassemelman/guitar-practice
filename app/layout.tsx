@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   creator: "Deliberate Guitar",
   robots: "noindex, nofollow", // Uso personal, no indexar
   viewport: "width=device-width, initial-scale=1",
-  themeColor: "#2563eb", // blue-600
+  themeColor: "#FF00FF", // neon-magenta
 };
 
 export default function RootLayout({

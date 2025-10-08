@@ -22,7 +22,7 @@ function renderStars(rating: number) {
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
   return (
-    <span className="text-yellow-500">
+    <span className="text-neon-magenta drop-shadow-[0_0_8px_rgba(255,0,255,0.6)]">
       {'★'.repeat(fullStars)}
       {hasHalfStar && '⯨'}
       {'☆'.repeat(emptyStars)}
@@ -35,9 +35,9 @@ function renderStars(rating: number) {
  */
 function StatCardSkeleton() {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 animate-pulse">
-      <div className="h-4 bg-gray-200 rounded w-20 mb-2"></div>
-      <div className="h-8 bg-gray-300 rounded w-16"></div>
+    <div className="glass-card rounded-2xl p-4 animate-pulse">
+      <div className="h-4 bg-gray-700 rounded w-20 mb-2"></div>
+      <div className="h-8 bg-gray-600 rounded w-16"></div>
     </div>
   );
 }
@@ -54,11 +54,11 @@ interface StatCardProps {
   customContent?: React.ReactNode;
 }
 
-function StatCard({ label, value, emoji, subtext, color = 'text-gray-900', customContent }: StatCardProps) {
+function StatCard({ label, value, emoji, subtext, color = 'text-gray-100', customContent }: StatCardProps) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-shadow">
+    <div className="glass-card rounded-2xl p-5 hover:glow-cyan transition-all duration-300">
       <div className="flex items-start justify-between mb-2">
-        <span className="text-sm font-medium text-gray-600">{label}</span>
+        <span className="text-sm font-medium text-gray-400">{label}</span>
         <span className="text-2xl">{emoji}</span>
       </div>
       {customContent ? (
@@ -69,7 +69,7 @@ function StatCard({ label, value, emoji, subtext, color = 'text-gray-900', custo
             {value}
           </div>
           {subtext && (
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-400">
               {subtext}
             </div>
           )}
@@ -135,13 +135,13 @@ export default function StatsPanel({ stats: initialStats, loading: initialLoadin
   // Estado de error
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-        <p className="text-sm text-red-800">
+      <div className="glass-card border-red-500/50 rounded-2xl p-4 text-center">
+        <p className="text-sm text-red-400">
           {error}
         </p>
         <button
           onClick={fetchStats}
-          className="mt-2 text-sm text-red-600 hover:text-red-700 font-medium underline"
+          className="mt-2 text-sm text-red-400 hover:text-red-500 font-medium underline"
         >
           Reintentar
         </button>
@@ -152,8 +152,8 @@ export default function StatsPanel({ stats: initialStats, loading: initialLoadin
   // Estado sin datos
   if (!stats) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-        <p className="text-sm text-gray-600">
+      <div className="glass-card rounded-2xl p-6 text-center">
+        <p className="text-sm text-gray-300">
           No hay estadísticas disponibles aún.
         </p>
       </div>
@@ -162,9 +162,9 @@ export default function StatsPanel({ stats: initialStats, loading: initialLoadin
 
   // Cálculo de color de racha
   const getStreakColor = (streak: number) => {
-    if (streak >= 7) return 'text-green-600';
-    if (streak >= 3) return 'text-orange-600';
-    return 'text-gray-900';
+    if (streak >= 7) return 'text-neon-green';
+    if (streak >= 3) return 'text-neon-yellow';
+    return 'text-gray-100';
   };
 
   // Cálculo de texto de minutos
@@ -180,10 +180,10 @@ export default function StatsPanel({ stats: initialStats, loading: initialLoadin
     <div>
       {/* Header */}
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-gray-100">
           Tu Progreso
         </h2>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-300">
           Celebrando cada paso en tu camino de práctica deliberada
         </p>
       </div>
@@ -205,7 +205,7 @@ export default function StatsPanel({ stats: initialStats, loading: initialLoadin
           value={stats.weeklyMinutes}
           emoji="⏱️"
           subtext={getMinutesSubtext(stats.weeklyMinutes)}
-          color="text-blue-600"
+          color="text-neon-cyan"
         />
 
         {/* Calidad promedio */}
@@ -219,12 +219,12 @@ export default function StatsPanel({ stats: initialStats, loading: initialLoadin
                 <div className="text-2xl mb-1">
                   {renderStars(stats.weeklyAverageQuality)}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-300">
                   {stats.weeklyAverageQuality.toFixed(1)}/5.0 esta semana
                 </div>
               </div>
             ) : (
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-400">
                 Sin datos de calidad esta semana
               </div>
             )
@@ -234,19 +234,19 @@ export default function StatsPanel({ stats: initialStats, loading: initialLoadin
 
       {/* Stats adicionales (compactas) */}
       <div className="mt-6 grid grid-cols-2 gap-4 text-center">
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="text-2xl font-bold text-gray-900">
+        <div className="glass-card rounded-lg p-3">
+          <div className="text-2xl font-bold text-gray-100">
             {stats.totalSessions}
           </div>
-          <div className="text-xs text-gray-600 mt-1">
+          <div className="text-xs text-gray-400 mt-1">
             Sesiones totales
           </div>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="text-2xl font-bold text-gray-900">
+        <div className="glass-card rounded-lg p-3">
+          <div className="text-2xl font-bold text-gray-100">
             {Math.floor(stats.totalMinutes / 60)}h {stats.totalMinutes % 60}m
           </div>
-          <div className="text-xs text-gray-600 mt-1">
+          <div className="text-xs text-gray-400 mt-1">
             Tiempo total
           </div>
         </div>
@@ -254,16 +254,16 @@ export default function StatsPanel({ stats: initialStats, loading: initialLoadin
 
       {/* Mensaje motivador basado en stats */}
       {stats.currentStreak >= 3 && (
-        <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-          <p className="text-sm text-green-800">
+        <div className="mt-4 glass-card border-neon-green/50 rounded-lg p-3 text-center">
+          <p className="text-sm text-green-300">
             🎉 ¡Excelente racha de {stats.currentStreak} días! La consistencia es la clave del progreso.
           </p>
         </div>
       )}
 
       {stats.weeklyMinutes >= 120 && (
-        <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-          <p className="text-sm text-blue-800">
+        <div className="mt-4 glass-card border-neon-cyan/50 rounded-lg p-3 text-center">
+          <p className="text-sm text-cyan-300">
             💪 ¡{stats.weeklyMinutes} minutos esta semana! Tu dedicación está dando frutos.
           </p>
         </div>

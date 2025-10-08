@@ -123,27 +123,27 @@ export default function SessionCard({
         <div className="mt-3 pt-3 border-t border-gray-100">
           <div className="flex flex-wrap gap-2">
             {session.mindsetChecklist.warmedUp && (
-              <span className="text-xs bg-gray-50 text-gray-600 px-2 py-1 rounded">
+              <span className="text-xs bg-black/50 text-gray-300 border border-gray-700 px-2 py-1 rounded">
                 Calentó
               </span>
             )}
             {session.mindsetChecklist.practicedSlow && (
-              <span className="text-xs bg-gray-50 text-gray-600 px-2 py-1 rounded">
+              <span className="text-xs bg-black/50 text-gray-300 border border-gray-700 px-2 py-1 rounded">
                 Lento
               </span>
             )}
             {session.mindsetChecklist.recorded && (
-              <span className="text-xs bg-gray-50 text-gray-600 px-2 py-1 rounded">
+              <span className="text-xs bg-black/50 text-gray-300 border border-gray-700 px-2 py-1 rounded">
                 Grabación
               </span>
             )}
             {session.mindsetChecklist.tookBreaks && (
-              <span className="text-xs bg-gray-50 text-gray-600 px-2 py-1 rounded">
+              <span className="text-xs bg-black/50 text-gray-300 border border-gray-700 px-2 py-1 rounded">
                 Pausas
               </span>
             )}
             {session.mindsetChecklist.reviewedMistakes && (
-              <span className="text-xs bg-gray-50 text-gray-600 px-2 py-1 rounded">
+              <span className="text-xs bg-black/50 text-gray-300 border border-gray-700 px-2 py-1 rounded">
                 Revisó errores
               </span>
             )}
@@ -153,11 +153,11 @@ export default function SessionCard({
 
       {/* Acciones (edit/delete) - si se proporcionan handlers */}
       {(onEdit || onDelete) && (
-        <div className="mt-3 pt-3 border-t border-gray-100 flex gap-2">
+        <div className="mt-3 pt-3 border-t border-gray-800 flex gap-2">
           {onEdit && (
             <button
               onClick={() => onEdit(session)}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              className="text-sm text-neon-cyan hover:text-neon-magenta font-medium transition-colors"
             >
               Editar
             </button>
@@ -165,7 +165,7 @@ export default function SessionCard({
           {onDelete && (
             <button
               onClick={() => onDelete(session.id)}
-              className="text-sm text-red-600 hover:text-red-700 font-medium"
+              className="text-sm text-red-400 hover:text-red-500 font-medium transition-colors"
             >
               Eliminar
             </button>
