@@ -23,7 +23,6 @@ export type InsightType =
   | 'slow_practice'
   | 'self_recording'
   | 'error_review'
-  | 'perfect_takes'
   | 'effort_management'
   | 'general_encouragement';
 
@@ -100,16 +99,7 @@ export function generateInsight(input: CreateSessionInput): Insight {
     };
   }
 
-  // Estrategia 4: Tomas perfectas
-  if (input.perfectTakes && input.perfectTakes >= 2) {
-    return {
-      type: 'perfect_takes',
-      message: `¡${input.perfectTakes} tomas perfectas! La repetición consciente está creando memoria muscular.`,
-      kaizen: 'Intenta lograr 3 tomas perfectas consecutivas antes de considerar aumentar dificultad.',
-    };
-  }
-
-  // Estrategia 5: Manejo de esfuerzo (RPE moderado = práctica sostenible)
+  // Estrategia 4: Manejo de esfuerzo (RPE moderado = práctica sostenible)
   if (input.rpe && input.rpe >= 4 && input.rpe <= 7) {
     return {
       type: 'effort_management',

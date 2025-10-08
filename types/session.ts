@@ -17,10 +17,10 @@ export type TechnicalFocus =
   | 'Repertorio';
 
 /**
- * Opciones válidas de duración de sesión en minutos.
- * Valores predefinidos para facilitar el registro rápido.
+ * Duración de sesión en minutos.
+ * Puede ser cualquier número positivo.
  */
-export type SessionDuration = 5 | 10 | 20 | 30 | 45 | 60;
+export type SessionDuration = number;
 
 /**
  * Checklist de mindset para práctica deliberada.
@@ -62,8 +62,6 @@ export interface Session {
   bpmTarget?: number | null;
   /** BPM realmente alcanzado */
   bpmAchieved?: number | null;
-  /** Número de tomas perfectas logradas (0-3) */
-  perfectTakes?: number | null;
   /** Calificación de calidad subjetiva (1-5 estrellas) */
   qualityRating?: number | null;
   /** Rating of Perceived Exertion - esfuerzo percibido (1-10) */
@@ -89,7 +87,6 @@ export interface CreateSessionInput {
   // Campos opcionales
   bpmTarget?: number;
   bpmAchieved?: number;
-  perfectTakes?: number;
   qualityRating?: number;
   rpe?: number;
   mindsetChecklist?: MindsetChecklist;
@@ -107,7 +104,6 @@ export interface UpdateSessionInput {
   durationMin?: SessionDuration;
   bpmTarget?: number | null;
   bpmAchieved?: number | null;
-  perfectTakes?: number | null;
   qualityRating?: number | null;
   rpe?: number | null;
   mindsetChecklist?: MindsetChecklist | null;
@@ -172,14 +168,12 @@ export type TimeRange = 'week' | 'month' | 'all';
  * Constantes del sistema.
  */
 export const SESSION_CONSTANTS = {
-  /** Duraciones válidas en minutos */
-  VALID_DURATIONS: [5, 10, 20, 30, 45, 60] as const,
   /** Focos técnicos válidos */
   VALID_FOCUSES: ['Técnica', 'Ritmo', 'Limpieza', 'Coordinación', 'Repertorio'] as const,
   /** Rango válido de BPM */
   BPM_RANGE: { min: 20, max: 400 } as const,
-  /** Rango válido de tomas perfectas */
-  PERFECT_TAKES_RANGE: { min: 0, max: 3 } as const,
+  /** Rango válido de duración en minutos */
+  DURATION_RANGE: { min: 1, max: 300 } as const,
   /** Rango válido de calificación de calidad */
   QUALITY_RATING_RANGE: { min: 1, max: 5 } as const,
   /** Rango válido de RPE */
@@ -199,7 +193,9 @@ export function isTechnicalFocus(value: unknown): value is TechnicalFocus {
  */
 export function isSessionDuration(value: unknown): value is SessionDuration {
   return typeof value === 'number' &&
-    SESSION_CONSTANTS.VALID_DURATIONS.includes(value as SessionDuration);
+    Number.isInteger(value) &&
+    value >= SESSION_CONSTANTS.DURATION_RANGE.min &&
+    value <= SESSION_CONSTANTS.DURATION_RANGE.max;
 }
 
 /**

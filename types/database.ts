@@ -25,7 +25,6 @@ export interface SessionRow {
   duration_min: number;
   bpm_target: number | null;
   bpm_achieved: number | null;
-  perfect_takes: number | null;
   quality_rating: number | null;
   rpe: number | null;
   mindset_checklist: MindsetChecklist | null;
@@ -41,7 +40,6 @@ export interface SessionInsertParams {
   duration_min: number;
   bpm_target?: number;
   bpm_achieved?: number;
-  perfect_takes?: number;
   quality_rating?: number;
   rpe?: number;
   mindset_checklist?: MindsetChecklist;
@@ -60,7 +58,6 @@ export function rowToSession(row: SessionRow): Session {
     durationMin: row.duration_min as SessionDuration,
     bpmTarget: row.bpm_target,
     bpmAchieved: row.bpm_achieved,
-    perfectTakes: row.perfect_takes,
     qualityRating: row.quality_rating,
     rpe: row.rpe,
     mindsetChecklist: row.mindset_checklist,
@@ -87,10 +84,6 @@ export function inputToInsertParams(
 
   if (input.bpmAchieved !== undefined) {
     params.bpm_achieved = input.bpmAchieved;
-  }
-
-  if (input.perfectTakes !== undefined) {
-    params.perfect_takes = input.perfectTakes;
   }
 
   if (input.qualityRating !== undefined) {

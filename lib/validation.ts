@@ -112,10 +112,14 @@ export function validateTechnicalFocus(value: unknown): ValidationResult {
  * Valida que una duración sea válida.
  */
 export function validateDuration(value: unknown): ValidationResult {
-  if (!isSessionDuration(value)) {
-    const validValues = SESSION_CONSTANTS.VALID_DURATIONS.join(', ');
+  if (typeof value !== 'number' || !Number.isInteger(value)) {
+    return createInvalidResult(['Duration must be an integer']);
+  }
+
+  const { min, max } = SESSION_CONSTANTS.DURATION_RANGE;
+  if (value < min || value > max) {
     return createInvalidResult([
-      `Duration must be one of: ${validValues} minutes`,
+      `Duration must be between ${min} and ${max} minutes`,
     ]);
   }
 
@@ -144,27 +148,6 @@ export function validateBPM(value: unknown, fieldName: string): ValidationResult
   return createValidResult();
 }
 
-/**
- * Valida que las tomas perfectas estén en rango válido (0-3).
- */
-export function validatePerfectTakes(value: unknown): ValidationResult {
-  if (value === null || value === undefined) {
-    return createValidResult(); // Campo opcional
-  }
-
-  if (typeof value !== 'number' || !Number.isInteger(value)) {
-    return createInvalidResult(['Perfect takes must be an integer']);
-  }
-
-  const { min, max } = SESSION_CONSTANTS.PERFECT_TAKES_RANGE;
-  if (value < min || value > max) {
-    return createInvalidResult([
-      `Perfect takes must be between ${min} and ${max}`,
-    ]);
-  }
-
-  return createValidResult();
-}
 
 /**
  * Valida que la calificación de calidad esté en rango válido (1-5).
@@ -307,13 +290,6 @@ export function validateCreateSessionInput(
     }
   }
 
-  if ('perfectTakes' in data) {
-    const perfectTakesResult = validatePerfectTakes(data.perfectTakes);
-    if (!perfectTakesResult.isValid) {
-      allErrors.push(...perfectTakesResult.errors);
-    }
-  }
-
   if ('qualityRating' in data) {
     const qualityRatingResult = validateQualityRating(data.qualityRating);
     if (!qualityRatingResult.isValid) {
@@ -374,10 +350,6 @@ export function transformToCreateSessionInput(
 
   if (input.bpmAchieved != null) {
     transformed.bpmAchieved = input.bpmAchieved as number;
-  }
-
-  if (input.perfectTakes != null) {
-    transformed.perfectTakes = input.perfectTakes as number;
   }
 
   if (input.qualityRating != null) {

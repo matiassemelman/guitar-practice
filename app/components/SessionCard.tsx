@@ -83,14 +83,6 @@ export default function SessionCard({
           </div>
         )}
 
-        {/* Tomas perfectas */}
-        {session.perfectTakes !== null && session.perfectTakes !== undefined && session.perfectTakes > 0 && (
-          <div className="flex items-center gap-1">
-            <span className="text-neon-green">✓</span>
-            <span>{session.perfectTakes}/3 tomas</span>
-          </div>
-        )}
-
         {/* Calidad */}
         {session.qualityRating && session.qualityRating > 0 && (
           <div className="flex items-center gap-1">

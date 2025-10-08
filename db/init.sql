@@ -23,12 +23,11 @@ CREATE TABLE sessions (
   technical_focus VARCHAR(50) NOT NULL
     CHECK (technical_focus IN ('Técnica', 'Ritmo', 'Limpieza', 'Coordinación', 'Repertorio')),
   duration_min INTEGER NOT NULL
-    CHECK (duration_min IN (5, 10, 20, 30, 45, 60)),
+    CHECK (duration_min >= 1 AND duration_min <= 300),
 
   -- Optional performance metrics
   bpm_target INTEGER CHECK (bpm_target > 0 AND bpm_target <= 300),
   bpm_achieved INTEGER CHECK (bpm_achieved > 0 AND bpm_achieved <= 300),
-  perfect_takes INTEGER CHECK (perfect_takes BETWEEN 0 AND 3),
   quality_rating INTEGER CHECK (quality_rating BETWEEN 1 AND 5),
   rpe INTEGER CHECK (rpe BETWEEN 1 AND 10),
 
@@ -80,7 +79,6 @@ CREATE TRIGGER sessions_updated_at
 --   duration_min,
 --   bpm_target,
 --   bpm_achieved,
---   perfect_takes,
 --   quality_rating,
 --   rpe,
 --   mindset_checklist,
@@ -91,7 +89,6 @@ CREATE TRIGGER sessions_updated_at
 --   20,
 --   60,
 --   55,
---   2,
 --   4,
 --   6,
 --   '{"warmed_up": true, "practiced_slow": true, "recorded_myself": false, "took_breaks": true, "reviewed_mistakes": true}'::jsonb,

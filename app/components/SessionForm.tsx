@@ -38,7 +38,6 @@ export default function SessionForm({ onSuccess }: SessionFormProps) {
   // Estados de campos opcionales de rendimiento
   const [bpmTarget, setBpmTarget] = useState<string>('');
   const [bpmAchieved, setBpmAchieved] = useState<string>('');
-  const [perfectTakes, setPerfectTakes] = useState<number | null>(null);
   const [qualityRating, setQualityRating] = useState<number | null>(null);
   const [rpe, setRpe] = useState<number>(5);
 
@@ -78,7 +77,6 @@ export default function SessionForm({ onSuccess }: SessionFormProps) {
       // Agregar campos opcionales solo si tienen valores
       if (bpmTarget) payload.bpmTarget = parseInt(bpmTarget);
       if (bpmAchieved) payload.bpmAchieved = parseInt(bpmAchieved);
-      if (perfectTakes !== null) payload.perfectTakes = perfectTakes;
       if (qualityRating !== null) payload.qualityRating = qualityRating;
       if (rpe) payload.rpe = rpe;
 
@@ -145,7 +143,6 @@ export default function SessionForm({ onSuccess }: SessionFormProps) {
     setDurationMin(20);
     setBpmTarget('');
     setBpmAchieved('');
-    setPerfectTakes(null);
     setQualityRating(null);
     setRpe(5);
     setMindsetChecklist(DEFAULT_MINDSET_CHECKLIST);
@@ -221,25 +218,22 @@ export default function SessionForm({ onSuccess }: SessionFormProps) {
 
         {/* Duración (required) */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-3">
-            Duración <span className="text-neon-pink">*</span>
+          <label htmlFor="durationMin" className="block text-sm font-medium text-gray-300 mb-2">
+            Duración (minutos) <span className="text-neon-pink">*</span>
           </label>
-          <div className="flex flex-wrap gap-2">
-            {SESSION_CONSTANTS.VALID_DURATIONS.map((duration) => (
-              <button
-                key={duration}
-                type="button"
-                onClick={() => setDurationMin(duration)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                  durationMin === duration
-                    ? 'bg-gradient-to-r from-neon-cyan to-neon-purple text-white glow-cyan'
-                    : 'bg-black/50 text-gray-300 border border-gray-700 hover:border-neon-cyan'
-                }`}
-              >
-                {duration} min
-              </button>
-            ))}
-          </div>
+          <input
+            id="durationMin"
+            type="number"
+            value={durationMin}
+            onChange={(e) => setDurationMin(parseInt(e.target.value) || 0)}
+            placeholder="20"
+            min={SESSION_CONSTANTS.DURATION_RANGE.min}
+            max={SESSION_CONSTANTS.DURATION_RANGE.max}
+            className="w-full px-4 py-3 bg-black/50 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-neon-cyan focus:border-neon-cyan transition-all duration-200"
+          />
+          <p className="mt-1 text-xs text-gray-400">
+            Mínimo {SESSION_CONSTANTS.DURATION_RANGE.min} min, máximo {SESSION_CONSTANTS.DURATION_RANGE.max} min
+          </p>
         </div>
 
         {/* Campos Opcionales de Rendimiento */}
@@ -281,29 +275,6 @@ export default function SessionForm({ onSuccess }: SessionFormProps) {
                 max={SESSION_CONSTANTS.BPM_RANGE.max}
                 className="w-full px-3 py-2 bg-black/50 border border-gray-700 text-gray-100 placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-neon-cyan focus:border-neon-cyan transition-all duration-200"
               />
-            </div>
-          </div>
-
-          {/* Tomas Perfectas */}
-          <div className="mt-4">
-            <label className="block text-xs font-medium text-gray-400 mb-2">
-              Tomas Perfectas (0-3)
-            </label>
-            <div className="flex gap-2">
-              {[0, 1, 2, 3].map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setPerfectTakes(value)}
-                  className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold transition-all duration-300 ${
-                    perfectTakes === value
-                      ? 'bg-gradient-to-br from-neon-green to-neon-cyan text-white scale-110 glow-cyan'
-                      : 'bg-black/50 text-gray-300 border border-gray-700 hover:border-neon-green'
-                  }`}
-                >
-                  {value}
-                </button>
-              ))}
             </div>
           </div>
 
