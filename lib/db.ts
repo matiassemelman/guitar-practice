@@ -33,30 +33,8 @@ export function getDbClient() {
 }
 
 /**
- * Escapa un valor para usar en SQL de forma segura.
- * Nota: Esta es una función básica. Para producción, considera usar una librería de escape más robusta.
- */
-function escapeSqlValue(value: unknown): string {
-  if (value === null || value === undefined) {
-    return 'NULL';
-  }
-  if (typeof value === 'number' || typeof value === 'boolean') {
-    return String(value);
-  }
-  if (typeof value === 'string') {
-    // Escape de comillas simples
-    return `'${value.replace(/'/g, "''")}'`;
-  }
-  if (typeof value === 'object') {
-    // Para JSON/JSONB
-    return `'${JSON.stringify(value).replace(/'/g, "''")}'`;
-  }
-  return String(value);
-}
-
-/**
  * Ejecuta una query SQL con parámetros.
- * Interpola los parámetros en el SQL de forma segura antes de enviar a Neon.
+ * Usa el método .query() de Neon para queries con placeholders ($1, $2, etc.).
  *
  * @param sql - Query SQL con placeholders ($1, $2, etc.)
  * @param params - Array de valores para los placeholders
@@ -70,16 +48,10 @@ export async function executeQuery<T = unknown>(
   try {
     const client = getDbClient();
 
-    // Interpolar parámetros en el SQL
-    let interpolatedSql = sql;
-    params.forEach((param, index) => {
-      const placeholder = `$${index + 1}`;
-      const escapedValue = escapeSqlValue(param);
-      interpolatedSql = interpolatedSql.replace(placeholder, escapedValue);
-    });
+    // Ejecutar query con Neon usando el método .query()
+    // El driver de Neon requiere usar .query() para strings dinámicos
+    const result = await (client as any).query(sql, params);
 
-    // Ejecutar query con Neon (como tagged template sintético)
-    const result = await client(interpolatedSql as any);
     return result as T[];
   } catch (error) {
     // Log del error para debugging (en producción usar logger apropiado)

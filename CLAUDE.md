@@ -88,8 +88,6 @@ Se puede usar columnas `jsonb` para datos flexibles como checklist de mindset, e
 
 ## Comandos de Desarrollo
 
-**Nota**: El proyecto está en etapa inicial; los comandos a continuación son placeholder para cuando comience la implementación.
-
 ```bash
 # Instalar dependencias
 npm install
@@ -97,33 +95,118 @@ npm install
 # Servidor de desarrollo
 npm run dev
 
-# Build
+# Build para producción
 npm run build
+
+# Verificar tipos TypeScript
+npx tsc --noEmit
 
 # Lint
 npm run lint
 
-# Formatear
-npm run format
+# Testing de API (después de configurar .env.local)
+./test-api.sh
 ```
 
-## Notas sobre Schema de Base de Datos
+## Estructura del Proyecto
 
-Usar queries SQL directas (sin ORM) para mantener dependencias mínimas. Estructura de ejemplo:
-
-```sql
-CREATE TABLE sessions (
-  id SERIAL PRIMARY KEY,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  micro_objective TEXT NOT NULL,
-  technical_focus VARCHAR(50) NOT NULL,
-  duration_min INTEGER NOT NULL,
-  bpm_target INTEGER,
-  bpm_achieved INTEGER,
-  perfect_takes INTEGER CHECK (perfect_takes BETWEEN 0 AND 3),
-  quality_rating INTEGER CHECK (quality_rating BETWEEN 1 AND 5),
-  rpe INTEGER CHECK (rpe BETWEEN 1 AND 10),
-  mindset_checklist JSONB,
-  reflection TEXT
-);
 ```
+/home/matias/projects/guitar-practice/
+├── app/
+│   ├── api/
+│   │   ├── test/route.ts           # Endpoint de verificación de DB
+│   │   ├── sessions/route.ts       # GET/POST sesiones
+│   │   └── stats/route.ts          # GET estadísticas
+│   ├── components/
+│   │   ├── SessionForm.tsx         # Formulario de registro (panel izquierdo)
+│   │   ├── SessionsList.tsx        # Timeline de sesiones (panel derecho)
+│   │   ├── SessionCard.tsx         # Tarjeta individual de sesión
+│   │   └── StatsPanel.tsx          # Panel de estadísticas
+│   ├── page.tsx                    # Página principal (layout de 2 paneles)
+│   ├── layout.tsx                  # Layout raíz
+│   └── globals.css                 # Estilos globales
+├── lib/
+│   ├── db.ts                       # Cliente de PostgreSQL + helpers
+│   ├── validation.ts               # Validación de inputs
+│   ├── insights.ts                 # Generador de mensajes Growth Mindset
+│   ├── session-helpers.ts          # Funciones helper para sesiones
+│   └── date-utils.ts               # Formateo de fechas
+├── types/
+│   ├── session.ts                  # Tipos de sesiones
+│   ├── database.ts                 # Tipos de DB + query builders
+│   ├── api.ts                      # Tipos de API responses
+│   └── ui.ts                       # Tipos de componentes
+├── db/
+│   ├── schema.sql                  # Schema con comentarios
+│   ├── init.sql                    # Script de inicialización
+│   └── README.md                   # Documentación de DB
+└── .env.local                      # Variables de entorno (no versionado)
+```
+
+## Base de Datos
+
+### Setup Inicial
+
+1. **Crear proyecto en Neon**: https://console.neon.tech
+2. **Copiar connection string** del dashboard de Neon
+3. **Actualizar `.env.local`**:
+   ```bash
+   DATABASE_URL=postgresql://user:password@host/database?sslmode=require
+   ```
+4. **Ejecutar schema**: Copiar contenido de `/db/init.sql` y ejecutar en Neon SQL Editor
+
+### Schema de Base de Datos
+
+Tabla `sessions` con:
+- Campos obligatorios: `micro_objective`, `technical_focus`, `duration_min`
+- Campos opcionales de rendimiento: BPM, tomas perfectas, calidad, RPE
+- `mindset_checklist` JSONB: checklist flexible de 5 hábitos
+- `reflection` TEXT: reflexión de una línea
+- Índices optimizados para queries comunes (timeline, filtros, stats)
+
+Ver `/db/schema.sql` para schema completo con comentarios y `/db/README.md` para documentación detallada.
+
+## API Routes
+
+### GET /api/test
+Verifica conexión a base de datos.
+
+### GET /api/sessions
+Lista sesiones con filtros opcionales.
+- Query params: `technicalFocus`, `dateFrom`, `dateTo`, `limit`, `offset`
+- Returns: Array de sesiones + total count
+
+### POST /api/sessions
+Crea nueva sesión de práctica.
+- Body: `CreateSessionInput`
+- Returns: Sesión creada + insight motivacional
+
+### GET /api/stats
+Obtiene estadísticas agregadas.
+- Returns: Racha de días, minutos semanales, calidad promedio, totales
+
+## Estado Actual
+
+### ✅ Completado (MVP ~75%)
+- Backend completo (DB client + API routes)
+- Componentes React (formulario, lista, stats)
+- Layout de dos paneles integrado
+- Sistema de insights Growth Mindset + Kaizen
+- Validación completa de datos
+- Loading states y error handling
+
+### ⏳ Pendiente
+- Filtros por foco técnico y rango de fechas
+- Gráfico de evolución de BPM
+- Plantillas de objetivos (autocompletado)
+- Exportación a JSON
+- Deploy a Vercel
+
+## Notas de Implementación
+
+- **Sin ORM**: Queries SQL directas con escape de parámetros manual
+- **Driver Neon**: Usa `@neondatabase/serverless` con queries interpoladas
+- **TypeScript estricto**: Todos los archivos tipados, cero `any` excepto workarounds necesarios
+- **Componentes "use client"**: Formulario y página principal (necesitan interactividad)
+- **Fetch directo**: Sin librerías de data fetching (React Query, SWR, etc.)
+- **Tailwind inline**: Sin archivos CSS de componentes separados
