@@ -88,7 +88,7 @@ Construir "Deliberate Guitar" siguiendo la filosofía de **funcional primero, re
 ### Campos Opcionales de Rendimiento
 - [ ] **Paso 11:** Agregar Inputs de BPM
   - BPM objetivo (input numérico)
-  - BPM logrado (input numérico con +/- buttons)
+  - BPM logrado (input numérico)
   - Actualizar tipos TypeScript
   - Actualizar API para aceptar estos campos
 
@@ -173,12 +173,6 @@ Construir "Deliberate Guitar" siguiendo la filosofía de **funcional primero, re
   - Crear componente `BPMChart.tsx`
   - Mostrar line chart de BPM achieved en el tiempo
   - Integrar en panel de evolución
-
-### Exportación
-- [ ] **Paso 20:** Botón de Exportar a JSON
-  - Crear componente de Settings/Configuración
-  - Botón que descarga todas las sesiones como JSON
-  - Formato: array de objetos Session
 
 **✅ Checkpoint Fase 4:** Todas las features del MVP están funcionales
 
