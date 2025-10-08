@@ -82,7 +82,7 @@ export interface SessionsListProps {
  * Props para el componente de panel de estadísticas.
  */
 export interface StatsPanelProps {
-  stats: SessionStats | null;
+  stats?: SessionStats | null;
   loading?: boolean;
 }
 

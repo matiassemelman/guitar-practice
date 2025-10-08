@@ -2,8 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Deliberate Guitar",
-  description: "Tracking de práctica deliberada de guitarra",
+  title: "Deliberate Guitar - Práctica Deliberada",
+  description: "Aplicación personal de tracking de práctica deliberada de guitarra. Growth Mindset + Kaizen. Registra sesiones, analiza tu progreso y celebra cada mejora.",
+  keywords: ["guitarra", "práctica deliberada", "growth mindset", "kaizen", "tracking", "progreso"],
+  authors: [{ name: "Deliberate Guitar" }],
+  creator: "Deliberate Guitar",
+  robots: "noindex, nofollow", // Uso personal, no indexar
+  viewport: "width=device-width, initial-scale=1",
+  themeColor: "#2563eb", // blue-600
 };
 
 export default function RootLayout({
@@ -13,7 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body className="antialiased">
+        {children}
+      </body>
     </html>
   );
 }
