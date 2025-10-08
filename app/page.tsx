@@ -18,6 +18,7 @@ import { useState, useEffect, useCallback } from 'react';
 import SessionForm from '@/app/components/SessionForm';
 import SessionsList from '@/app/components/SessionsList';
 import StatsPanel from '@/app/components/StatsPanel';
+import EditSessionModal from '@/app/components/EditSessionModal';
 import type { Session } from '@/types';
 import type { ApiResponse, GetSessionsResponse } from '@/types/api';
 
@@ -29,6 +30,10 @@ export default function Home() {
 
   // Key para forzar re-render de StatsPanel (cuando se crea nueva sesión)
   const [statsKey, setStatsKey] = useState(0);
+
+  // Estado del modal de edición
+  const [editingSession, setEditingSession] = useState<Session | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   /**
    * Fetch inicial de sesiones desde la API
@@ -81,20 +86,67 @@ export default function Home() {
   }, [fetchSessions]);
 
   /**
-   * Handler opcional para editar sesión (funcionalidad futura)
+   * Handler para editar sesión - abre el modal de edición
    */
   const handleSessionEdit = useCallback((session: Session) => {
-    // TODO: Implementar edición de sesión (modal o navegación a página de edición)
-    console.log('Edit session:', session.id);
+    setEditingSession(session);
+    setIsEditModalOpen(true);
   }, []);
 
   /**
-   * Handler opcional para eliminar sesión (funcionalidad futura)
+   * Handler para cerrar el modal de edición
+   */
+  const handleCloseEditModal = useCallback(() => {
+    setIsEditModalOpen(false);
+    setEditingSession(null);
+  }, []);
+
+  /**
+   * Handler para cuando se edita exitosamente una sesión
+   */
+  const handleEditSuccess = useCallback(() => {
+    fetchSessions();
+    setStatsKey(prev => prev + 1);
+  }, [fetchSessions]);
+
+  /**
+   * Handler para eliminar sesión con confirmación
    */
   const handleSessionDelete = useCallback(async (sessionId: number) => {
-    // TODO: Implementar eliminación con confirmación
-    console.log('Delete session:', sessionId);
-  }, []);
+    // Confirmación antes de eliminar
+    const confirmed = window.confirm(
+      '¿Estás seguro de que quieres eliminar esta sesión? Esta acción no se puede deshacer.'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/sessions/${sessionId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh de lista de sesiones y stats
+        fetchSessions();
+        setStatsKey(prev => prev + 1);
+      } else {
+        throw new Error(data.error.message);
+      }
+    } catch (err) {
+      console.error('Error deleting session:', err);
+      alert(
+        `Error al eliminar sesión: ${err instanceof Error ? err.message : 'Error desconocido'}`
+      );
+    }
+  }, [fetchSessions]);
 
   return (
     <main className="min-h-screen">
@@ -154,6 +206,14 @@ export default function Home() {
         </div>
 
       </div>
+
+      {/* Modal de edición */}
+      <EditSessionModal
+        session={editingSession}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSuccess={handleEditSuccess}
+      />
     </main>
   );
 }
