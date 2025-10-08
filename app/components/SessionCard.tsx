@@ -9,14 +9,14 @@ import type { SessionCardProps } from '@/types';
 import { formatRelativeDate } from '@/lib/date-utils';
 
 /**
- * Mapeo de foco técnico a colores de badge.
+ * Mapeo de foco técnico a colores de badge (Cyberpunk theme).
  */
 const FOCUS_COLORS: Record<string, string> = {
-  'Técnica': 'bg-blue-100 text-blue-800',
-  'Ritmo': 'bg-purple-100 text-purple-800',
-  'Limpieza': 'bg-green-100 text-green-800',
-  'Coordinación': 'bg-orange-100 text-orange-800',
-  'Repertorio': 'bg-pink-100 text-pink-800',
+  'Técnica': 'bg-neon-cyan/20 text-neon-cyan border-neon-cyan/50',
+  'Ritmo': 'bg-neon-purple/20 text-neon-purple border-neon-purple/50',
+  'Limpieza': 'bg-neon-green/20 text-neon-green border-neon-green/50',
+  'Coordinación': 'bg-neon-yellow/20 text-neon-yellow border-neon-yellow/50',
+  'Repertorio': 'bg-neon-pink/20 text-neon-pink border-neon-pink/50',
 };
 
 /**
@@ -38,44 +38,44 @@ export default function SessionCard({
   onDelete,
   compact = true
 }: SessionCardProps) {
-  const badgeColor = FOCUS_COLORS[session.technicalFocus] || 'bg-gray-100 text-gray-800';
+  const badgeColor = FOCUS_COLORS[session.technicalFocus] || 'bg-gray-700/50 text-gray-300 border-gray-600';
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+    <div className="glass-card rounded-lg p-4 hover:glow-magenta transition-all duration-300">
       {/* Header: Fecha y foco técnico */}
       <div className="flex items-start justify-between mb-3">
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-gray-400">
           {formatRelativeDate(session.createdAt)}
         </span>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${badgeColor}`}>
+        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${badgeColor}`}>
           {session.technicalFocus}
         </span>
       </div>
 
       {/* Objetivo micro (destacado) */}
-      <h3 className="text-base font-semibold text-gray-900 mb-3 leading-snug">
+      <h3 className="text-base font-semibold text-gray-100 mb-3 leading-snug">
         {session.microObjective}
       </h3>
 
       {/* Duración y métricas */}
-      <div className="flex flex-wrap gap-3 mb-3 text-sm text-gray-600">
+      <div className="flex flex-wrap gap-3 mb-3 text-sm text-gray-300">
         {/* Duración */}
         <div className="flex items-center gap-1">
-          <span className="text-gray-400">⏱</span>
+          <span className="text-neon-cyan">⏱</span>
           <span>{session.durationMin} min</span>
         </div>
 
         {/* BPM */}
         {(session.bpmTarget || session.bpmAchieved) && (
           <div className="flex items-center gap-1">
-            <span className="text-gray-400">♪</span>
+            <span className="text-neon-magenta">♪</span>
             <span>
               {session.bpmTarget && `${session.bpmTarget} bpm`}
               {session.bpmTarget && session.bpmAchieved && ' → '}
               {session.bpmAchieved && (
                 <span className={session.bpmAchieved >= (session.bpmTarget || 0)
-                  ? 'text-green-600 font-medium'
-                  : 'text-orange-600'}>
+                  ? 'text-neon-green font-medium'
+                  : 'text-neon-yellow'}>
                   {session.bpmAchieved} bpm
                 </span>
               )}
@@ -86,7 +86,7 @@ export default function SessionCard({
         {/* Tomas perfectas */}
         {session.perfectTakes !== null && session.perfectTakes !== undefined && session.perfectTakes > 0 && (
           <div className="flex items-center gap-1">
-            <span className="text-gray-400">✓</span>
+            <span className="text-neon-green">✓</span>
             <span>{session.perfectTakes}/3 tomas</span>
           </div>
         )}
@@ -94,7 +94,7 @@ export default function SessionCard({
         {/* Calidad */}
         {session.qualityRating && session.qualityRating > 0 && (
           <div className="flex items-center gap-1">
-            <span className="text-yellow-500 text-xs">
+            <span className="text-neon-yellow text-xs">
               {renderStars(session.qualityRating)}
             </span>
           </div>
@@ -111,8 +111,8 @@ export default function SessionCard({
 
       {/* Reflexión (si existe) */}
       {session.reflection && session.reflection.trim() && (
-        <div className="mt-3 pt-3 border-t border-gray-100">
-          <p className="text-sm text-gray-700 italic">
+        <div className="mt-3 pt-3 border-t border-neon-magenta/30">
+          <p className="text-sm text-gray-300 italic">
             &ldquo;{session.reflection}&rdquo;
           </p>
         </div>
@@ -120,30 +120,30 @@ export default function SessionCard({
 
       {/* Mindset checklist (si existe y tiene items marcados) */}
       {session.mindsetChecklist && Object.values(session.mindsetChecklist).some(v => v) && (
-        <div className="mt-3 pt-3 border-t border-gray-100">
+        <div className="mt-3 pt-3 border-t border-neon-cyan/30">
           <div className="flex flex-wrap gap-2">
             {session.mindsetChecklist.warmedUp && (
-              <span className="text-xs bg-black/50 text-gray-300 border border-gray-700 px-2 py-1 rounded">
+              <span className="text-xs bg-neon-cyan/10 text-neon-cyan border border-neon-cyan/50 px-2 py-1 rounded">
                 Calentó
               </span>
             )}
             {session.mindsetChecklist.practicedSlow && (
-              <span className="text-xs bg-black/50 text-gray-300 border border-gray-700 px-2 py-1 rounded">
+              <span className="text-xs bg-neon-green/10 text-neon-green border border-neon-green/50 px-2 py-1 rounded">
                 Lento
               </span>
             )}
             {session.mindsetChecklist.recorded && (
-              <span className="text-xs bg-black/50 text-gray-300 border border-gray-700 px-2 py-1 rounded">
+              <span className="text-xs bg-neon-magenta/10 text-neon-magenta border border-neon-magenta/50 px-2 py-1 rounded">
                 Grabación
               </span>
             )}
             {session.mindsetChecklist.tookBreaks && (
-              <span className="text-xs bg-black/50 text-gray-300 border border-gray-700 px-2 py-1 rounded">
+              <span className="text-xs bg-neon-yellow/10 text-neon-yellow border border-neon-yellow/50 px-2 py-1 rounded">
                 Pausas
               </span>
             )}
             {session.mindsetChecklist.reviewedMistakes && (
-              <span className="text-xs bg-black/50 text-gray-300 border border-gray-700 px-2 py-1 rounded">
+              <span className="text-xs bg-neon-pink/10 text-neon-pink border border-neon-pink/50 px-2 py-1 rounded">
                 Revisó errores
               </span>
             )}
@@ -153,7 +153,7 @@ export default function SessionCard({
 
       {/* Acciones (edit/delete) - si se proporcionan handlers */}
       {(onEdit || onDelete) && (
-        <div className="mt-3 pt-3 border-t border-gray-800 flex gap-2">
+        <div className="mt-3 pt-3 border-t border-neon-magenta/30 flex gap-2">
           {onEdit && (
             <button
               onClick={() => onEdit(session)}
@@ -165,7 +165,7 @@ export default function SessionCard({
           {onDelete && (
             <button
               onClick={() => onDelete(session.id)}
-              className="text-sm text-red-400 hover:text-red-500 font-medium transition-colors"
+              className="text-sm text-red-500 hover:text-red-400 font-medium transition-colors"
             >
               Eliminar
             </button>
