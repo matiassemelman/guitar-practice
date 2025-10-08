@@ -76,7 +76,8 @@ Se puede usar columnas `jsonb` para datos flexibles como checklist de mindset, e
 ## Principios de UI/UX
 
 - **Desktop-first**: Panel izquierdo fijo (registro) + panel derecho (evolución)
-- **Minimalista**: Sin ruido visual, colores neutros, tipografía legible
+- **Estética Cyberpunk 2077**: Colores neon (magenta #FF00FF, cyan #00FFFF, yellow #FFFF00, pink #FF00AA) sobre fondos ultra oscuros con glassmorphism
+- **Glassmorphism**: Cards con backdrop-blur, transparencias y borders luminosos con glow effects
 - **Feedback positivo**: Mensajes breves enfocados en estrategia después de guardar
 - **Baja fricción**: Sin modales, menús ocultos o complejidad
 - **Motivación intrínseca**: Mostrar métricas de proceso (calidad, correcciones), no solo velocidad/cantidad
@@ -187,13 +188,14 @@ Obtiene estadísticas agregadas.
 
 ## Estado Actual
 
-### ✅ Completado (MVP ~75%)
+### ✅ Completado (MVP ~85%)
 - Backend completo (DB client + API routes)
 - Componentes React (formulario, lista, stats)
 - Layout de dos paneles integrado
 - Sistema de insights Growth Mindset + Kaizen
 - Validación completa de datos
 - Loading states y error handling
+- **Diseño visual Cyberpunk 2077** con paleta neon y glassmorphism completo
 
 ### ⏳ Pendiente
 - Filtros por foco técnico y rango de fechas
@@ -210,3 +212,4 @@ Obtiene estadísticas agregadas.
 - **Componentes "use client"**: Formulario y página principal (necesitan interactividad)
 - **Fetch directo**: Sin librerías de data fetching (React Query, SWR, etc.)
 - **Tailwind inline**: Sin archivos CSS de componentes separados
+- **Sistema de diseño**: Paleta cyberpunk definida en `globals.css` con `@theme` (Tailwind v4), 4 utility classes custom (`.glass-card`, `.glow-magenta`, `.glow-cyan`, `.glow-pink`)
