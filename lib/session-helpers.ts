@@ -194,23 +194,17 @@ export function calculateSessionScore(session: Session): number {
     factors++;
   }
 
-  // Factor 2: BPM Progress (peso: 25%)
+  // Factor 2: BPM Progress (peso: 35%)
   const bpmProgress = getBPMProgressPercentage(session);
   if (bpmProgress !== null) {
-    score += Math.min(bpmProgress / 100, 1) * 25;
+    score += Math.min(bpmProgress / 100, 1) * 35;
     factors++;
   }
 
-  // Factor 3: Tomas perfectas (peso: 20%)
-  if (session.perfectTakes !== null && session.perfectTakes !== undefined) {
-    score += (session.perfectTakes / 3) * 20;
-    factors++;
-  }
-
-  // Factor 4: Mindset checklist (peso: 25%)
+  // Factor 3: Mindset checklist (peso: 35%)
   if (session.mindsetChecklist) {
     const mindsetPercent = getMindsetCompletionPercentage(session.mindsetChecklist);
-    score += (mindsetPercent / 100) * 25;
+    score += (mindsetPercent / 100) * 35;
     factors++;
   }
 
