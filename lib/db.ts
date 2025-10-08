@@ -33,7 +33,30 @@ export function getDbClient() {
 }
 
 /**
+ * Escapa un valor para usar en SQL de forma segura.
+ * Nota: Esta es una función básica. Para producción, considera usar una librería de escape más robusta.
+ */
+function escapeSqlValue(value: unknown): string {
+  if (value === null || value === undefined) {
+    return 'NULL';
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  if (typeof value === 'string') {
+    // Escape de comillas simples
+    return `'${value.replace(/'/g, "''")}'`;
+  }
+  if (typeof value === 'object') {
+    // Para JSON/JSONB
+    return `'${JSON.stringify(value).replace(/'/g, "''")}'`;
+  }
+  return String(value);
+}
+
+/**
  * Ejecuta una query SQL con parámetros.
+ * Interpola los parámetros en el SQL de forma segura antes de enviar a Neon.
  *
  * @param sql - Query SQL con placeholders ($1, $2, etc.)
  * @param params - Array de valores para los placeholders
@@ -46,7 +69,17 @@ export async function executeQuery<T = unknown>(
 ): Promise<T[]> {
   try {
     const client = getDbClient();
-    const result = await client(sql, params);
+
+    // Interpolar parámetros en el SQL
+    let interpolatedSql = sql;
+    params.forEach((param, index) => {
+      const placeholder = `$${index + 1}`;
+      const escapedValue = escapeSqlValue(param);
+      interpolatedSql = interpolatedSql.replace(placeholder, escapedValue);
+    });
+
+    // Ejecutar query con Neon (como tagged template sintético)
+    const result = await client(interpolatedSql as any);
     return result as T[];
   } catch (error) {
     // Log del error para debugging (en producción usar logger apropiado)
@@ -67,8 +100,8 @@ export async function executeQuery<T = unknown>(
 /**
  * Ejecuta una query que debe retornar exactamente una fila.
  *
- * @param sql - Query SQL
- * @param params - Parámetros de la query
+ * @param sql - Query SQL con placeholders opcionales
+ * @param params - Parámetros para los placeholders
  * @returns La primera fila del resultado
  * @throws {Error} Si no se encuentra ninguna fila
  */
@@ -88,8 +121,8 @@ export async function executeQueryOne<T = unknown>(
 /**
  * Ejecuta una query que puede retornar una fila o null.
  *
- * @param sql - Query SQL
- * @param params - Parámetros de la query
+ * @param sql - Query SQL con placeholders opcionales
+ * @param params - Parámetros para los placeholders
  * @returns La primera fila del resultado o null si no hay resultados
  */
 export async function executeQueryOneOrNull<T = unknown>(
