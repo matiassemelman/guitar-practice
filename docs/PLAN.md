@@ -153,13 +153,6 @@ Construir "Deliberate Guitar" siguiendo la filosofía de **funcional primero, re
 
 **Objetivo:** Completar experiencia de evolución y motivación
 
-### Timeline Mejorado
-- [ ] **Paso 17:** Implementar Filtros
-  - Filtro por foco técnico (dropdown)
-  - Filtro por rango de fechas (última semana / mes / todo)
-  - Actualizar API para soportar query params
-  - Actualizar SessionsList para usar filtros
-
 ### Feedback Inteligente
 - [ ] **Paso 18:** Sistema de Insights Post-Guardado
   - Crear función que analice sesión guardada
