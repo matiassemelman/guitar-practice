@@ -171,7 +171,51 @@ Construir "Deliberate Guitar" siguiendo la filosofía de **funcional primero, re
 
 ---
 
-## FASE 5: Deploy y Polish (1-2 horas)
+## FASE 5: Coach IA con Feedback Inteligente (2-3 horas)
+
+**Objetivo:** Sistema de análisis IA que complementa el feedback automático
+**Documento detallado:** [`docs/IMPLEMENTACION-COACH-IA.md`](./IMPLEMENTACION-COACH-IA.md)
+
+### Tipos y Backend
+- [ ] **Paso 20:** Crear Tipos de Análisis IA
+  - Crear archivo `types/ai-analysis.ts`
+  - Definir 6 tipos de análisis (patterns, weaknesses, experiments, plateau, strengths, progression)
+  - Actualizar `types/api.ts` con exports
+  - Instalar dependencia: `npm install @anthropic-ai/sdk`
+
+- [ ] **Paso 20b:** API Route de Análisis IA
+  - Crear `app/api/ai-analysis/route.ts`
+  - Implementar query optimizada (últimas 30 sesiones)
+  - Implementar resumen inteligente (si >15 sesiones)
+  - Configurar Claude API con prompt Growth Mindset
+  - Agregar `ANTHROPIC_API_KEY` a `.env.local`
+
+### Frontend
+- [ ] **Paso 20c:** Componente Modal de Análisis
+  - Crear `app/components/AIAnalysisModal.tsx`
+  - Modal de 2 pasos: config → resultados
+  - Grid de 6 checkboxes con glassmorphism
+  - Loading state con spinner animado
+  - Renderizado de Markdown con colores neon
+
+- [ ] **Paso 20d:** Integración en UI Principal
+  - Modificar `app/components/StatsPanel.tsx`
+  - Agregar botón "🤖 Análisis Inteligente con IA"
+  - Modificar `app/page.tsx`
+  - Agregar estado `aiModalOpen` y renderizar modal
+
+### Testing
+- [ ] **Paso 20e:** Validación Completa
+  - Testing manual con checklist (config, análisis, errores, estética)
+  - Test de API con curl/script
+  - Verificar TypeScript compila sin errores
+  - Build de producción exitoso
+
+**✅ Checkpoint Fase 5:** Coach IA funciona y complementa feedback instantáneo
+
+---
+
+## FASE 6: Deploy y Polish (1-2 horas)
 
 **Objetivo:** App en producción, lista para uso diario
 
@@ -243,9 +287,12 @@ El MVP está terminado cuando:
 
 ## 📊 Progreso General
 
-**Fases Completadas:** 0/5
-**Pasos Completados:** 0/23
+**Fases Completadas:** 0/6
+**Pasos Completados:** 0/24
 **Progreso Total:** 0%
+
+### Nuevas Features Post-MVP
+- **Coach IA con Feedback Inteligente**: Ver [`docs/IMPLEMENTACION-COACH-IA.md`](./IMPLEMENTACION-COACH-IA.md)
 
 ---
 
