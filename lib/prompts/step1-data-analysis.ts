@@ -19,6 +19,7 @@ export function buildStep1Prompt(sessions: Session[], profile?: UserProfile | nu
 ${profile.currentChallenge ? `- Desafío actual: ${profile.currentChallenge}` : ''}
 ${profile.idealPracticeFrequency ? `- Frecuencia ideal: ${profile.idealPracticeFrequency} días por semana` : ''}
 ${profile.priorityTechniques ? `- Técnicas prioritarias: ${profile.priorityTechniques}` : ''}
+${profile.additionalContext && Object.keys(profile.additionalContext).length > 0 ? `\n## Contexto Adicional\n${JSON.stringify(profile.additionalContext, null, 2)}` : ''}
 
 # CONTEXTO PEDAGÓGICO
 ${getPedagogicalContext(profile.level)}

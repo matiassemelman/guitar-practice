@@ -25,6 +25,7 @@ export default function ProfileModal({ isOpen, onClose, onSave }: ProfileModalPr
   const [currentChallenge, setCurrentChallenge] = useState('');
   const [idealPracticeFrequency, setIdealPracticeFrequency] = useState<number>(3);
   const [priorityTechniques, setPriorityTechniques] = useState('');
+  const [additionalContext, setAdditionalContext] = useState('');
 
   // Cargar perfil al abrir
   useEffect(() => {
@@ -51,6 +52,13 @@ export default function ProfileModal({ isOpen, onClose, onSave }: ProfileModalPr
         setCurrentChallenge(p.currentChallenge || '');
         setIdealPracticeFrequency(p.idealPracticeFrequency || 3);
         setPriorityTechniques(p.priorityTechniques || '');
+
+        // Cargar additional_context (convertir de objeto a string para el textarea)
+        if (p.additionalContext && Object.keys(p.additionalContext).length > 0) {
+          setAdditionalContext(JSON.stringify(p.additionalContext, null, 2));
+        } else {
+          setAdditionalContext('');
+        }
       }
     } catch (err: any) {
       setError(err.message);
@@ -71,6 +79,17 @@ export default function ProfileModal({ isOpen, onClose, onSave }: ProfileModalPr
     setError('');
 
     try {
+      // Parse additional_context (intentar JSON, sino guardarlo como texto)
+      let parsedAdditionalContext: Record<string, any> = {};
+      if (additionalContext.trim()) {
+        try {
+          parsedAdditionalContext = JSON.parse(additionalContext);
+        } catch {
+          // Si no es JSON válido, guardarlo como texto libre
+          parsedAdditionalContext = { notes: additionalContext.trim() };
+        }
+      }
+
       const input: CreateProfileInput = {
         level,
         experienceValue,
@@ -79,6 +98,7 @@ export default function ProfileModal({ isOpen, onClose, onSave }: ProfileModalPr
         currentChallenge: currentChallenge.trim() || undefined,
         idealPracticeFrequency,
         priorityTechniques: priorityTechniques.trim() || undefined,
+        additionalContext: Object.keys(parsedAdditionalContext).length > 0 ? parsedAdditionalContext : undefined,
       };
 
       const response = await fetch('/api/profile', {
@@ -249,6 +269,23 @@ export default function ProfileModal({ isOpen, onClose, onSave }: ProfileModalPr
                   maxLength={200}
                   className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-neon-cyan"
                 />
+              </div>
+
+              {/* Contexto adicional */}
+              <div>
+                <label className="block text-sm font-semibold text-neon-yellow mb-2">
+                  Contexto Adicional (opcional)
+                </label>
+                <textarea
+                  value={additionalContext}
+                  onChange={(e) => setAdditionalContext(e.target.value)}
+                  placeholder='Ej: {"tipo_guitarra": "acústica", "estilo_musical": "fingerstyle", "limitaciones_fisicas": "mano pequeña"}'
+                  rows={4}
+                  className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-neon-cyan font-mono text-sm"
+                />
+                <div className="text-xs text-gray-500 mt-1">
+                  Podés usar formato JSON o texto libre. Ej: tipo de guitarra, estilo musical, limitaciones físicas, etc.
+                </div>
               </div>
 
               {error && (

@@ -44,12 +44,14 @@ export function buildStep2Prompt(
 ${profile.currentChallenge ? `- Desafío actual: ${profile.currentChallenge}` : ''}
 ${profile.idealPracticeFrequency ? `- Frecuencia ideal: ${profile.idealPracticeFrequency} días por semana` : ''}
 ${profile.priorityTechniques ? `- Técnicas prioritarias: ${profile.priorityTechniques}` : ''}
+${profile.additionalContext && Object.keys(profile.additionalContext).length > 0 ? `\n## Contexto Adicional\n${JSON.stringify(profile.additionalContext, null, 2)}\n*Considerá este contexto al dar recomendaciones.*` : ''}
 
 **IMPORTANTE**:
 - Todos tus insights deben estar alineados con el objetivo principal del guitarrista
 - Si el análisis de datos muestra algo relevante al desafío actual, mencionalo específicamente
 - Ajustá el nivel de complejidad de tus recomendaciones según el nivel de experiencia
 - Usá el tono apropiado: ${TONE_GUIDELINES.beginner}
+${profile.additionalContext && Object.keys(profile.additionalContext).length > 0 ? '- Tené en cuenta el contexto adicional del guitarrista al hacer recomendaciones' : ''}
 ` : `
 **IMPORTANTE**:
 - Como no hay perfil de usuario, brindá un análisis general pero útil
