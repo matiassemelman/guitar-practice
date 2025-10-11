@@ -19,6 +19,7 @@ import SessionForm from '@/app/components/SessionForm';
 import SessionsList from '@/app/components/SessionsList';
 import StatsPanel from '@/app/components/StatsPanel';
 import EditSessionModal from '@/app/components/EditSessionModal';
+import AIAnalysisModal from '@/app/components/AIAnalysisModal';
 import type { Session } from '@/types';
 import type { ApiResponse, GetSessionsResponse } from '@/types/api';
 
@@ -34,6 +35,9 @@ export default function Home() {
   // Estado del modal de edición
   const [editingSession, setEditingSession] = useState<Session | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // Estado del modal de análisis IA
+  const [aiModalOpen, setAiModalOpen] = useState(false);
 
   /**
    * Fetch inicial de sesiones desde la API
@@ -165,7 +169,10 @@ export default function Home() {
 
         {/* StatsPanel - Full width arriba */}
         <section className="w-full">
-          <StatsPanel key={statsKey} />
+          <StatsPanel
+            key={statsKey}
+            onRequestAIAnalysis={() => setAiModalOpen(true)}
+          />
         </section>
 
         {/* Layout de dos paneles: Formulario (izq) + Lista (der) */}
@@ -213,6 +220,12 @@ export default function Home() {
         isOpen={isEditModalOpen}
         onClose={handleCloseEditModal}
         onSuccess={handleEditSuccess}
+      />
+
+      {/* AI Analysis Modal */}
+      <AIAnalysisModal
+        isOpen={aiModalOpen}
+        onClose={() => setAiModalOpen(false)}
       />
     </main>
   );

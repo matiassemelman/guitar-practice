@@ -213,3 +213,10 @@ export interface RetryOptions {
   /** Códigos de status HTTP que deben reintentar */
   retryOn: number[];
 }
+
+// AI Analysis API types
+export type {
+  AIAnalysisRequest,
+  AIAnalysisResponse,
+  AnalysisType
+} from './ai-analysis';

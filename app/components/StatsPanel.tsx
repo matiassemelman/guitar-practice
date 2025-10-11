@@ -83,7 +83,11 @@ function StatCard({ label, value, emoji, subtext, color = 'text-gray-100', custo
  * Componente StatsPanel.
  * Panel horizontal con 3 métricas clave de motivación y progreso.
  */
-export default function StatsPanel({ stats: initialStats, loading: initialLoading = false }: StatsPanelProps) {
+export default function StatsPanel({
+  stats: initialStats,
+  loading: initialLoading = false,
+  onRequestAIAnalysis
+}: StatsPanelProps) {
   const [stats, setStats] = useState<SessionStats | null>(initialStats ?? null);
   const [loading, setLoading] = useState(initialLoading);
   const [error, setError] = useState<string | null>(null);
@@ -265,6 +269,22 @@ export default function StatsPanel({ stats: initialStats, loading: initialLoadin
         <div className="mt-4 glass-card border-neon-cyan/50 rounded-lg p-3 text-center">
           <p className="text-sm text-cyan-300">
             💪 ¡{stats.weeklyMinutes} minutos esta semana! Tu dedicación está dando frutos.
+          </p>
+        </div>
+      )}
+
+      {/* AI Analysis Button */}
+      {onRequestAIAnalysis && (
+        <div className="mt-6 pt-6 border-t border-neon-magenta/30">
+          <button
+            onClick={onRequestAIAnalysis}
+            className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-neon-purple via-neon-magenta to-neon-pink text-white font-bold hover:glow-magenta hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-3"
+          >
+            <span className="text-2xl">🤖</span>
+            <span>Análisis Inteligente con IA</span>
+          </button>
+          <p className="text-xs text-gray-400 text-center mt-2">
+            Pedí insights profundos sobre tu progreso
           </p>
         </div>
       )}

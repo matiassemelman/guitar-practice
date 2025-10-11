@@ -84,6 +84,7 @@ export interface SessionsListProps {
 export interface StatsPanelProps {
   stats?: SessionStats | null;
   loading?: boolean;
+  onRequestAIAnalysis?: () => void;  // Callback para abrir modal de análisis IA
 }
 
 /**
