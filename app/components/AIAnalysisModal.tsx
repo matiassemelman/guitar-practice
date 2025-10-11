@@ -16,6 +16,8 @@ export default function AIAnalysisModal({ isOpen, onClose }: AIAnalysisModalProp
   const [analysis, setAnalysis] = useState('');
   const [error, setError] = useState('');
   const [sessionCount, setSessionCount] = useState(0);
+  const [loadingStep, setLoadingStep] = useState<'analyzing-data' | 'generating-insights'>('analyzing-data');
+  const [dataAnalysis, setDataAnalysis] = useState<any>(null);
 
   // Reset al abrir
   useEffect(() => {
@@ -24,6 +26,8 @@ export default function AIAnalysisModal({ isOpen, onClose }: AIAnalysisModalProp
       setSelectedTypes([]);
       setAnalysis('');
       setError('');
+      setDataAnalysis(null);
+      setLoadingStep('analyzing-data');
     }
   }, [isOpen]);
 
@@ -44,8 +48,12 @@ export default function AIAnalysisModal({ isOpen, onClose }: AIAnalysisModalProp
 
     setStep('loading');
     setError('');
+    setLoadingStep('analyzing-data');
 
     try {
+      // Simular transición entre pasos (para mejor UX)
+      setTimeout(() => setLoadingStep('generating-insights'), 3000);
+
       const response = await fetch('/api/ai-analysis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -58,7 +66,8 @@ export default function AIAnalysisModal({ isOpen, onClose }: AIAnalysisModalProp
         throw new Error(data.error || 'Error en el análisis');
       }
 
-      setAnalysis(data.analysis);
+      setDataAnalysis(data.dataAnalysis);
+      setAnalysis(data.insights);
       setSessionCount(data.sessionCount);
       setStep('results');
 
@@ -146,29 +155,81 @@ export default function AIAnalysisModal({ isOpen, onClose }: AIAnalysisModalProp
           {/* PASO 2: Loading */}
           {step === 'loading' && (
             <div className="text-center py-16">
-              <div className="text-6xl mb-6 animate-pulse">🤖</div>
+              <div className="text-6xl mb-6 animate-pulse">
+                {loadingStep === 'analyzing-data' ? '📊' : '💡'}
+              </div>
               <div className="text-neon-cyan text-xl font-semibold mb-2">
-                Analizando tus sesiones...
+                {loadingStep === 'analyzing-data'
+                  ? 'Paso 1/2: Analizando datos...'
+                  : 'Paso 2/2: Generando insights...'}
               </div>
               <div className="text-gray-400 text-sm">
-                Esto puede tomar 5-15 segundos
+                Esto puede tomar 10-20 segundos
               </div>
             </div>
           )}
 
           {/* PASO 3: Resultados */}
           {step === 'results' && (
-            <div className="space-y-4">
-              <div
-                className="prose prose-invert max-w-none bg-black/30 border border-neon-cyan/20 rounded-lg p-6"
-                dangerouslySetInnerHTML={{
-                  __html: analysis
-                    .replace(/^## (.*)/gm, '<h2 class="text-neon-magenta text-xl font-bold mt-6 mb-3">$1</h2>')
-                    .replace(/^### (.*)/gm, '<h3 class="text-neon-cyan text-lg font-semibold mt-4 mb-2">$1</h3>')
-                    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-neon-yellow font-bold">$1</strong>')
-                    .replace(/\n/g, '<br />')
-                }}
-              />
+            <div className="space-y-6">
+              {/* Sección 1: Análisis de Datos */}
+              {dataAnalysis && (
+                <div className="bg-black/30 border border-neon-magenta/20 rounded-lg p-6">
+                  <h2 className="text-neon-magenta text-xl font-bold mb-4">📊 Análisis de Datos</h2>
+
+                  {/* Métricas */}
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="bg-black/40 p-3 rounded">
+                      <div className="text-xs text-gray-400">Total Sesiones</div>
+                      <div className="text-lg font-bold text-neon-cyan">{dataAnalysis.metrics?.totalSessions || 0}</div>
+                    </div>
+                    <div className="bg-black/40 p-3 rounded">
+                      <div className="text-xs text-gray-400">Minutos Totales</div>
+                      <div className="text-lg font-bold text-neon-cyan">{dataAnalysis.metrics?.totalMinutes || 0}</div>
+                    </div>
+                    <div className="bg-black/40 p-3 rounded">
+                      <div className="text-xs text-gray-400">Duración Promedio</div>
+                      <div className="text-lg font-bold text-neon-cyan">{dataAnalysis.metrics?.avgDuration?.toFixed(0) || 0} min</div>
+                    </div>
+                    <div className="bg-black/40 p-3 rounded">
+                      <div className="text-xs text-gray-400">Calidad Promedio</div>
+                      <div className="text-lg font-bold text-neon-cyan">{dataAnalysis.metrics?.avgQuality?.toFixed(1) || 'N/A'}★</div>
+                    </div>
+                  </div>
+
+                  {/* Alertas */}
+                  {dataAnalysis.alerts && dataAnalysis.alerts.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="text-neon-yellow text-sm font-semibold">⚠️ Alertas</h3>
+                      {dataAnalysis.alerts.map((alert: any, idx: number) => (
+                        <div key={idx} className={`text-xs p-2 rounded ${
+                          alert.severity === 'critical' ? 'bg-red-500/20 text-red-300' :
+                          alert.severity === 'warning' ? 'bg-yellow-500/20 text-yellow-300' :
+                          'bg-blue-500/20 text-blue-300'
+                        }`}>
+                          {alert.message}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Sección 2: Insights */}
+              <div className="bg-black/30 border border-neon-cyan/20 rounded-lg p-6">
+                <h2 className="text-neon-cyan text-xl font-bold mb-4">💡 Insights Personalizados</h2>
+                <div
+                  className="prose prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{
+                    __html: analysis
+                      .replace(/^## (.*)/gm, '<h2 class="text-neon-magenta text-xl font-bold mt-6 mb-3">$1</h2>')
+                      .replace(/^### (.*)/gm, '<h3 class="text-neon-cyan text-lg font-semibold mt-4 mb-2">$1</h3>')
+                      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-neon-yellow font-bold">$1</strong>')
+                      .replace(/\n/g, '<br />')
+                  }}
+                />
+              </div>
+
               <div className="text-xs text-gray-500 text-right">
                 {sessionCount} sesiones analizadas
               </div>

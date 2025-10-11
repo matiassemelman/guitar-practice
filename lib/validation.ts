@@ -432,3 +432,67 @@ export function validateDateRange(
 
   return createValidResult();
 }
+
+// ============================================================================
+// Profile Validators
+// ============================================================================
+
+import type { ExperienceLevel, ExperienceUnit } from '@/types/profile';
+
+/**
+ * Valida que el nivel de experiencia sea válido.
+ */
+export function validateExperienceLevel(level: unknown): ExperienceLevel {
+  const validLevels: ExperienceLevel[] = ['beginner', 'intermediate', 'advanced'];
+  if (typeof level !== 'string' || !validLevels.includes(level as ExperienceLevel)) {
+    throw new Error(`Nivel inválido. Debe ser: ${validLevels.join(', ')}`);
+  }
+  return level as ExperienceLevel;
+}
+
+/**
+ * Valida que la unidad de experiencia sea válida.
+ */
+export function validateExperienceUnit(unit: unknown): ExperienceUnit {
+  const validUnits: ExperienceUnit[] = ['days', 'months', 'years'];
+  if (typeof unit !== 'string' || !validUnits.includes(unit as ExperienceUnit)) {
+    throw new Error(`Unidad inválida. Debe ser: ${validUnits.join(', ')}`);
+  }
+  return unit as ExperienceUnit;
+}
+
+/**
+ * Valida que el objetivo principal sea válido.
+ */
+export function validateMainGoal(goal: unknown): string {
+  if (typeof goal !== 'string' || goal.trim().length === 0) {
+    throw new Error('Objetivo principal es obligatorio');
+  }
+  if (goal.length > 500) {
+    throw new Error('Objetivo no puede exceder 500 caracteres');
+  }
+  return goal.trim();
+}
+
+/**
+ * Valida que el valor de experiencia sea válido.
+ */
+export function validateExperienceValue(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isInteger(value) || value <= 0) {
+    throw new Error('Valor de experiencia debe ser un número entero positivo');
+  }
+  return value;
+}
+
+/**
+ * Valida que la frecuencia ideal de práctica sea válida (1-7 días).
+ */
+export function validatePracticeFrequency(freq: unknown): number | null {
+  if (freq === null || freq === undefined) {
+    return null;
+  }
+  if (typeof freq !== 'number' || !Number.isInteger(freq) || freq < 1 || freq > 7) {
+    throw new Error('Frecuencia de práctica debe estar entre 1 y 7 días por semana');
+  }
+  return freq;
+}

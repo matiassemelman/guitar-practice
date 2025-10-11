@@ -19,6 +19,68 @@ export interface AIAnalysisResponse {
   error?: string;
 }
 
+// ============================================================================
+// Multi-Step Analysis Types
+// ============================================================================
+
+// Paso 1: Análisis de datos estructurado
+export interface DataAnalysisResult {
+  metrics: {
+    totalSessions: number;
+    avgDuration: number;
+    avgBPM: number | null;
+    avgQuality: number | null;
+    totalMinutes: number;
+    sessionsByFocus: Record<string, number>;
+    mindsetCompletionRate: number;
+  };
+  patterns: Array<{
+    type: string;
+    description: string;
+    evidence: string;
+  }>;
+  trends: Array<{
+    metric: string;
+    direction: 'up' | 'down' | 'stable';
+    details: string;
+  }>;
+  correlations: Array<{
+    variables: [string, string];
+    relationship: string;
+    strength: 'weak' | 'moderate' | 'strong';
+  }>;
+  alerts: Array<{
+    severity: 'info' | 'warning' | 'critical';
+    message: string;
+  }>;
+}
+
+// Response actualizado con ambos pasos
+export interface AIAnalysisMultiStepResponse {
+  success: boolean;
+  dataAnalysis?: DataAnalysisResult;
+  insights?: string;
+  sessionCount?: number;
+  error?: string;
+}
+
+// Helper para extraer JSON robusto
+export function extractJSON(text: string): any {
+  try {
+    return JSON.parse(text);
+  } catch {
+    const match = text.match(/```json\s*([\s\S]*?)\s*```/);
+    if (match) return JSON.parse(match[1]);
+
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}') + 1;
+    if (start !== -1 && end > start) {
+      return JSON.parse(text.slice(start, end));
+    }
+    throw new Error('No se encontró JSON válido');
+  }
+}
+
 // UI Metadata para los checkboxes
 export const ANALYSIS_TYPE_INFO: Record<AnalysisType, {
   label: string;

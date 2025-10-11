@@ -2,8 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { executeQuery } from '@/lib/db';
 import type { AIAnalysisRequest, AnalysisType } from '@/types/ai-analysis';
+import { extractJSON } from '@/types/ai-analysis';
 import type { SessionRow } from '@/types/database';
 import { rowToSession } from '@/types/database';
+import type { UserProfileRow } from '@/types/profile';
+import { rowToProfile } from '@/types/profile';
+import { buildStep1Prompt } from '@/lib/prompts/step1-data-analysis';
+import { buildStep2Prompt } from '@/lib/prompts/step2-insights';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || '',
@@ -15,102 +20,6 @@ function buildSessionsQuery(limit: number = 30) {
     sql: 'SELECT * FROM sessions ORDER BY created_at DESC LIMIT $1',
     params: [limit]
   };
-}
-
-// Helper: Preparar datos para el prompt (resumen inteligente)
-function prepareDataForPrompt(sessions: any[]) {
-  // Si hay <= 15 sesiones, enviar todas con detalles
-  if (sessions.length <= 15) {
-    return sessions.map(s => ({
-      fecha: new Date(s.createdAt).toLocaleDateString('es-AR'),
-      objetivo: s.microObjective,
-      foco: s.technicalFocus,
-      duracion: s.durationMin,
-      bpm: s.bpmTarget && s.bpmAchieved ? `${s.bpmAchieved}/${s.bpmTarget}` : 'N/A',
-      calidad: s.qualityRating ? `${s.qualityRating}★` : 'N/A',
-      mindset: s.mindsetChecklist || {}
-    }));
-  }
-
-  // Si hay > 15, enviar últimas 10 + resumen del resto
-  const recent = sessions.slice(0, 10).map(s => ({
-    fecha: new Date(s.createdAt).toLocaleDateString('es-AR'),
-    objetivo: s.microObjective,
-    foco: s.technicalFocus,
-    duracion: s.durationMin,
-    bpm: s.bpmTarget && s.bpmAchieved ? `${s.bpmAchieved}/${s.bpmTarget}` : 'N/A',
-    calidad: s.qualityRating ? `${s.qualityRating}★` : 'N/A',
-    mindset: s.mindsetChecklist || {}
-  }));
-
-  const older = sessions.slice(10);
-  const summary = {
-    totalSesiones: older.length,
-    duracionPromedio: Math.round(
-      older.reduce((sum, s) => sum + s.durationMin, 0) / older.length
-    ),
-    calidadPromedio: older.filter(s => s.qualityRating).length > 0
-      ? (older.reduce((sum, s) => sum + (s.qualityRating || 0), 0) /
-         older.filter(s => s.qualityRating).length).toFixed(1)
-      : 'N/A',
-    focosDistribucion: older.reduce((acc: any, s) => {
-      acc[s.technicalFocus] = (acc[s.technicalFocus] || 0) + 1;
-      return acc;
-    }, {})
-  };
-
-  return { sesionesRecientes: recent, resumenAnteriores: summary };
-}
-
-// Helper: Construir prompt según tipos de análisis
-function buildPrompt(types: AnalysisType[], data: any) {
-  const intro = `Sos un coach experto en práctica deliberada de guitarra. Tu filosofía es Growth Mindset + Kaizen.
-
-**TONO**: Voseo argentino (usá "vos", "tenés", "practicás"), motivador pero realista, profesional.
-
-**DATOS DE PRÁCTICA**:
-\`\`\`json
-${JSON.stringify(data, null, 2)}
-\`\`\`
-
-**ANÁLISIS SOLICITADOS**: ${types.join(', ')}
-
-Generá una respuesta en Markdown con las siguientes secciones:
-`;
-
-  const sections: string[] = [];
-
-  if (types.includes('patterns')) {
-    sections.push(`## 🔍 Patrones Detectados
-Identificá tendencias en horarios, técnicas, correlaciones (ej: BPM vs calidad). Usá datos concretos.`);
-  }
-
-  if (types.includes('strengths')) {
-    sections.push(`## ⭐ Fortalezas Observadas
-Reconocé estrategias efectivas y hábitos positivos. Celebrá el esfuerzo (Growth Mindset).`);
-  }
-
-  if (types.includes('weaknesses')) {
-    sections.push(`## 🎯 Áreas de Mejora
-Señalá oportunidades de crecimiento con tacto. Enfocate en aprendizaje, no deficiencias.`);
-  }
-
-  if (types.includes('plateau')) {
-    sections.push(`## 📊 Análisis de Progreso
-Evaluá si hay estancamiento en BPM o calidad. Si lo hay, explicá posibles causas.`);
-  }
-
-  if (types.includes('experiments')) {
-    sections.push(`## 🧪 Micro-Experimentos Kaizen
-Proponé 2-3 estrategias concretas y específicas para próximas sesiones.`);
-  }
-
-  if (types.includes('progression')) {
-    sections.push(`## 📈 Evaluación de Evolución
-Analizá progreso en BPM, calidad y adherencia a mindset. Destacá mejoras.`);
-  }
-
-  return intro + '\n' + sections.join('\n\n') + '\n\n**Importante**: Basá cada insight en datos específicos del historial.';
 }
 
 export async function POST(request: NextRequest) {
@@ -145,34 +54,85 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Preparar datos para el prompt
-    const data = prepareDataForPrompt(sessions);
+    // 3. Obtener perfil de usuario (si existe)
+    let profile = null;
+    try {
+      const profileSql = 'SELECT * FROM user_profile WHERE id = 1';
+      const profileRows = await executeQuery<UserProfileRow>(profileSql, []);
+      if (profileRows.length > 0) {
+        profile = rowToProfile(profileRows[0]);
+        console.log('✅ Perfil de usuario encontrado:', profile.level, profile.mainGoal);
+      } else {
+        console.log('ℹ️  No hay perfil de usuario, análisis será genérico');
+      }
+    } catch (error) {
+      console.warn('⚠️  Error al obtener perfil, continuando sin personalización:', error);
+      // Continuar sin perfil
+    }
 
-    // 4. Construir prompt
-    const prompt = buildPrompt(analysisTypes, data);
+    // ========================================================================
+    // PASO 1: Análisis de Datos (JSON estructurado)
+    // ========================================================================
+    const step1Prompt = buildStep1Prompt(sessions, profile);
 
-    // 5. Llamar a OpenAI API (GPT-4o)
-    const completion = await openai.chat.completions.create({
+    console.log('🔍 Paso 1: Analizando datos de sesiones...');
+
+    const step1Completion = await openai.chat.completions.create({
       model: 'gpt-4o',
       messages: [{
         role: 'user',
-        content: prompt
+        content: step1Prompt
       }],
+      response_format: { type: 'json_object' }, // Forzar JSON
       max_tokens: 2048,
-      temperature: 0.7,
+      temperature: 0.3, // Baja temp para análisis de datos
     });
 
-    // 6. Extraer texto de respuesta
-    const analysisText = completion.choices[0]?.message?.content || '';
-
-    if (!analysisText) {
-      throw new Error('No se recibió respuesta de la IA');
+    const step1Text = step1Completion.choices[0]?.message?.content || '';
+    if (!step1Text) {
+      throw new Error('No se recibió respuesta del Paso 1');
     }
 
-    // 7. Retornar respuesta
+    // Parsear JSON robusto
+    let dataAnalysis;
+    try {
+      dataAnalysis = extractJSON(step1Text);
+    } catch (error: any) {
+      console.error('Error parseando JSON del Paso 1:', error);
+      throw new Error(`Error parseando análisis de datos: ${error.message}`);
+    }
+
+    console.log('✅ Paso 1 completado');
+
+    // ========================================================================
+    // PASO 2: Generación de Insights (Markdown)
+    // ========================================================================
+    const step2Prompt = buildStep2Prompt(dataAnalysis, analysisTypes, profile);
+
+    console.log('💡 Paso 2: Generando insights personalizados...');
+
+    const step2Completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [{
+        role: 'user',
+        content: step2Prompt
+      }],
+      max_tokens: 2048,
+      temperature: 0.7, // Temp más alta para creatividad en insights
+    });
+
+    const insights = step2Completion.choices[0]?.message?.content || '';
+    if (!insights) {
+      throw new Error('No se recibió respuesta del Paso 2');
+    }
+
+    console.log('✅ Paso 2 completado');
+
+    // 7. Retornar respuesta con ambos pasos
     return NextResponse.json({
       success: true,
-      analysis: analysisText,
+      dataAnalysis,
+      insights,
       sessionCount: sessions.length
     });
 

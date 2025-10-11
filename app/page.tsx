@@ -20,6 +20,7 @@ import SessionsList from '@/app/components/SessionsList';
 import StatsPanel from '@/app/components/StatsPanel';
 import EditSessionModal from '@/app/components/EditSessionModal';
 import AIAnalysisModal from '@/app/components/AIAnalysisModal';
+import ProfileModal from '@/app/components/ProfileModal';
 import type { Session } from '@/types';
 import type { ApiResponse, GetSessionsResponse } from '@/types/api';
 
@@ -38,6 +39,9 @@ export default function Home() {
 
   // Estado del modal de análisis IA
   const [aiModalOpen, setAiModalOpen] = useState(false);
+
+  // Estado del modal de perfil
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   /**
    * Fetch inicial de sesiones desde la API
@@ -158,13 +162,21 @@ export default function Home() {
       <div className="max-w-[1600px] mx-auto p-6 space-y-6">
 
         {/* Header */}
-        <header className="mb-6">
-          <h1 className="text-4xl font-bold gradient-text mb-2">
-            Deliberate Guitar
-          </h1>
-          <p className="text-gray-300">
-            Tracking de práctica deliberada - Growth Mindset + Kaizen
-          </p>
+        <header className="mb-6 flex items-start justify-between">
+          <div>
+            <h1 className="text-4xl font-bold gradient-text mb-2">
+              Deliberate Guitar
+            </h1>
+            <p className="text-gray-300">
+              Tracking de práctica deliberada - Growth Mindset + Kaizen
+            </p>
+          </div>
+          <button
+            onClick={() => setProfileModalOpen(true)}
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-neon-cyan to-neon-green text-black font-semibold hover:scale-[1.02] transition-all glow-cyan"
+          >
+            👤 Mi Perfil
+          </button>
         </header>
 
         {/* StatsPanel - Full width arriba */}
@@ -226,6 +238,12 @@ export default function Home() {
       <AIAnalysisModal
         isOpen={aiModalOpen}
         onClose={() => setAiModalOpen(false)}
+      />
+
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
       />
     </main>
   );
