@@ -21,6 +21,8 @@ import StatsPanel from '@/app/components/StatsPanel';
 import EditSessionModal from '@/app/components/EditSessionModal';
 import AIAnalysisModal from '@/app/components/AIAnalysisModal';
 import ProfileModal from '@/app/components/ProfileModal';
+import DailyHabitsPanel from '@/app/components/DailyHabitsPanel';
+import HabitsCalendar from '@/app/components/HabitsCalendar';
 import type { Session } from '@/types';
 import type { ApiResponse, GetSessionsResponse } from '@/types/api';
 
@@ -178,6 +180,16 @@ export default function Home() {
             👤 Mi Perfil
           </button>
         </header>
+
+        {/* Panel de Hábitos Diarios */}
+        <section className="w-full">
+          <DailyHabitsPanel />
+        </section>
+
+        {/* Calendario de Hábitos */}
+        <section className="w-full">
+          <HabitsCalendar />
+        </section>
 
         {/* StatsPanel - Full width arriba */}
         <section className="w-full">
