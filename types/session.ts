@@ -18,7 +18,7 @@ export type TechnicalFocus =
 
 /**
  * Duración de sesión en minutos.
- * Puede ser cualquier número positivo.
+ * Acepta cualquier valor entre 1 y 300 minutos.
  */
 export type SessionDuration = number;
 
@@ -174,6 +174,8 @@ export const SESSION_CONSTANTS = {
   BPM_RANGE: { min: 20, max: 400 } as const,
   /** Rango válido de duración en minutos */
   DURATION_RANGE: { min: 1, max: 300 } as const,
+  /** Duraciones sugeridas para selector rápido en UI */
+  SUGGESTED_DURATIONS: [5, 10, 20, 30, 45, 60] as const,
   /** Rango válido de calificación de calidad */
   QUALITY_RATING_RANGE: { min: 1, max: 5 } as const,
   /** Rango válido de RPE */

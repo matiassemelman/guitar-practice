@@ -25,7 +25,7 @@ CREATE TABLE sessions (
   technical_focus VARCHAR(50) NOT NULL
     CHECK (technical_focus IN ('Técnica', 'Ritmo', 'Limpieza', 'Coordinación', 'Repertorio')),
   duration_min INTEGER NOT NULL
-    CHECK (duration_min IN (5, 10, 20, 30, 45, 60)),
+    CHECK (duration_min >= 1 AND duration_min <= 300),
 
   -- Optional performance metrics
   bpm_target INTEGER CHECK (bpm_target > 0 AND bpm_target <= 300),
@@ -92,7 +92,7 @@ COMMENT ON COLUMN sessions.technical_focus IS
   'Category of practice focus. Valid values: Técnica, Ritmo, Limpieza, Coordinación, Repertorio';
 
 COMMENT ON COLUMN sessions.duration_min IS
-  'Session duration in minutes. Valid values: 5, 10, 20, 30, 45, 60';
+  'Session duration in minutes. Accepts any value from 1 to 300. UI suggests: 5, 10, 20, 30, 45, 60';
 
 COMMENT ON COLUMN sessions.bpm_target IS
   'Target tempo in beats per minute (optional)';
