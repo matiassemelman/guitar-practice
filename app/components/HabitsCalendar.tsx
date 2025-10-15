@@ -114,6 +114,7 @@ export default function HabitsCalendar() {
   const [currentMonth, setCurrentMonth] = useState(getCurrentMonth());
   const [selectedDay, setSelectedDay] = useState<DailyHabitsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     fetchMonthData();
@@ -162,53 +163,60 @@ export default function HabitsCalendar() {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-4">
-        <button onClick={goToPrevMonth} className="text-cyan-400 hover:text-cyan-300 text-2xl">
+        <button onClick={goToPrevMonth} className="text-cyan-400 hover:text-cyan-300 text-2xl" disabled={isCollapsed}>
           ←
         </button>
-        <h2 className="text-2xl font-bold text-cyan-400 glow-cyan">
-          📊 {formatMonthTitle(currentMonth)}
+        <h2
+          className="text-2xl font-bold text-cyan-400 glow-cyan cursor-pointer hover:text-cyan-300 transition-colors"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          📊 {formatMonthTitle(currentMonth)} {isCollapsed ? '▼' : '▲'}
         </h2>
-        <button onClick={goToNextMonth} className="text-cyan-400 hover:text-cyan-300 text-2xl">
+        <button onClick={goToNextMonth} className="text-cyan-400 hover:text-cyan-300 text-2xl" disabled={isCollapsed}>
           →
         </button>
       </div>
 
-      {/* Estadísticas del mes */}
-      <div className="glass-card p-4 mb-4">
-        <div className="flex justify-around text-sm">
-          <div>
-            <span className="text-cyan-400">🎵 Warmup:</span> {monthData.stats.warmupCount}/{monthData.stats.totalDays}
+      {!isCollapsed && (
+        <>
+          {/* Estadísticas del mes */}
+          <div className="glass-card p-4 mb-4">
+            <div className="flex justify-around text-sm">
+              <div>
+                <span className="text-cyan-400">🎵 Warmup:</span> {monthData.stats.warmupCount}/{monthData.stats.totalDays}
+              </div>
+              <div>
+                <span className="text-magenta-400">🎸 Acordes:</span> {monthData.stats.chordsCount}/{monthData.stats.totalDays}
+              </div>
+              <div>
+                <span className="text-yellow-400">📚 Clase:</span> {monthData.stats.classCount}/{monthData.stats.totalDays}
+              </div>
+            </div>
+            {monthData.stats.currentStreak > 0 && (
+              <p className="text-center mt-2 text-magenta-400 font-bold">
+                🔥 {monthData.stats.currentStreak} días de racha!
+              </p>
+            )}
           </div>
-          <div>
-            <span className="text-magenta-400">🎸 Acordes:</span> {monthData.stats.chordsCount}/{monthData.stats.totalDays}
-          </div>
-          <div>
-            <span className="text-yellow-400">📚 Clase:</span> {monthData.stats.classCount}/{monthData.stats.totalDays}
-          </div>
-        </div>
-        {monthData.stats.currentStreak > 0 && (
-          <p className="text-center mt-2 text-magenta-400 font-bold">
-            🔥 {monthData.stats.currentStreak} días de racha!
-          </p>
-        )}
-      </div>
 
-      {/* Calendario grid */}
-      <div className="grid grid-cols-7 gap-2">
-        {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day) => (
-          <div key={day} className="text-center text-xs text-gray-500 font-bold">
-            {day}
+          {/* Calendario grid */}
+          <div className="grid grid-cols-7 gap-2">
+            {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day) => (
+              <div key={day} className="text-center text-xs text-gray-500 font-bold">
+                {day}
+              </div>
+            ))}
+            {daysInMonth.map((day, idx) => (
+              <DayCell
+                key={idx}
+                dayNumber={day.dayNumber}
+                habits={day.habits}
+                onClick={() => day.habits && setSelectedDay(day.habits)}
+              />
+            ))}
           </div>
-        ))}
-        {daysInMonth.map((day, idx) => (
-          <DayCell
-            key={idx}
-            dayNumber={day.dayNumber}
-            habits={day.habits}
-            onClick={() => day.habits && setSelectedDay(day.habits)}
-          />
-        ))}
-      </div>
+        </>
+      )}
 
       {/* Modal de detalles del día */}
       {selectedDay && <DayDetailModal habits={selectedDay} onClose={() => setSelectedDay(null)} />}
