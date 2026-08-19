@@ -1,11 +1,42 @@
 ---
-status: implementing
+status: awaiting-provider-key-rotation
 date: 2026-08-19
 scope: public-demo-security
 decision: public-fixture-plus-private-companion
 ---
 
 # Deliberate Guitar — plan de demo pública segura
+
+## Estado de ejecución — 2026-08-19
+
+Completado:
+
+- la URL pública sirve únicamente fixtures sintéticos y un análisis
+  precomputado;
+- el proyecto Vercel público conserva sólo `APP_MODE=demo` y el firewall
+  rechaza `/api/*`;
+- diez variantes de acceso a las APIs públicas devolvieron `403`, incluyendo
+  intentos con `Origin`, `Referer`, cookies y `Authorization` falsos;
+- seis deployments históricos requieren Vercel SSO y sus APIs no son
+  accesibles anónimamente;
+- el companion `guitar-practice-private` está desplegado como preview bajo
+  Vercel Authentication;
+- Neon usa un role de runtime sin permisos DDL y la credencial anterior de
+  owner fue reseteada y verificada como inválida;
+- el companion pasó create/read/update/delete con cleanup, más las pruebas de
+  perfil y hábitos;
+- el código pasó `11/11` tests, lint, build en modo demo y
+  `npm audit --omit=dev` sin vulnerabilidades conocidas.
+
+Pendiente por requerir acceso del dueño de las cuentas:
+
+- revocar la key OpenAI anterior;
+- crear una key nueva en un proyecto OpenAI dedicado, cargarla sólo en el
+  companion como secret de Preview y habilitar `AI_ANALYSIS_ENABLED=true`;
+- redeployar y ejecutar una única prueba end-to-end de IA con cleanup;
+- revocar una key Anthropic expuesta por un documento en el historial Git. El
+  árbol actual ya está redacted; reescribir el historial es una decisión
+  separada y no reemplaza la revocación.
 
 ## Resultado buscado
 
@@ -224,10 +255,12 @@ Se termina cuando el URL público conserva el proof, no tiene secretos ni
 acceso a proveedores, y el companion protegido pasa CRUD + IA. No se agrega
 login propio, multiusuario, sandbox por visitante ni rediseño visual amplio.
 
-## Gate humano
+## Gate humano restante
 
-Antes de ejecutar, Matias debe aprobar esta única decisión:
+La arquitectura ya fue ejecutada. Para cerrar el cutover, Matias debe realizar
+las acciones que exigen ser dueño de las cuentas:
 
-> Mantener el URL actual como demo pública sintética y crear un companion
-> privado protegido para el tracker real, aceptando una ventana breve de
-> protección durante el cutover y una segunda rotación de credenciales.
+1. revocar las keys OpenAI y Anthropic anteriores;
+2. crear una key OpenAI nueva y dedicada;
+3. cargarla directamente en Vercel, sin pasarla por chat, archivos o shell
+   compartido.
