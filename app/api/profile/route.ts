@@ -9,12 +9,16 @@ import {
   validateExperienceValue,
   validatePracticeFrequency,
 } from '@/lib/validation';
+import { rejectUnlessPrivateMode } from '@/lib/api-guard';
 
 /**
  * GET /api/profile
  * Obtiene el perfil de usuario (solo puede haber 1)
  */
 export async function GET(request: NextRequest) {
+  const modeRejection = rejectUnlessPrivateMode();
+  if (modeRejection) return modeRejection;
+
   try {
     const sql = 'SELECT * FROM user_profile WHERE id = 1';
     const rows = await executeQuery<UserProfileRow>(sql, []);
@@ -32,12 +36,12 @@ export async function GET(request: NextRequest) {
       success: true,
       profile,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error fetching profile:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al obtener perfil',
+        error: 'Error al obtener perfil',
       },
       { status: 500 }
     );
@@ -49,6 +53,9 @@ export async function GET(request: NextRequest) {
  * Crea o actualiza el perfil (UPSERT)
  */
 export async function POST(request: NextRequest) {
+  const modeRejection = rejectUnlessPrivateMode();
+  if (modeRejection) return modeRejection;
+
   try {
     // 1. Parsear body
     const body = await request.json();
@@ -117,12 +124,12 @@ export async function POST(request: NextRequest) {
       profile,
       message: 'Perfil guardado exitosamente',
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error saving profile:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al guardar perfil',
+        error: 'Error al guardar perfil',
       },
       { status: 400 }
     );

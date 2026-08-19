@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { executeQuery } from '@/lib/db';
-import type { AIAnalysisRequest, AnalysisType } from '@/types/ai-analysis';
+import type { AIAnalysisRequest } from '@/types/ai-analysis';
 import { extractJSON } from '@/types/ai-analysis';
 import type { SessionRow } from '@/types/database';
 import { rowToSession } from '@/types/database';
@@ -9,10 +9,13 @@ import type { UserProfileRow } from '@/types/profile';
 import { rowToProfile } from '@/types/profile';
 import { buildStep1Prompt } from '@/lib/prompts/step1-data-analysis';
 import { buildStep2Prompt } from '@/lib/prompts/step2-insights';
+import { rejectUnlessPrivateMode, withNoStore } from '@/lib/api-guard';
+import {
+  AIRequestValidationError,
+  parseAIAnalysisRequest,
+} from '@/lib/ai-request-validation.mjs';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
-});
+const MAX_REQUEST_BYTES = 4_096;
 
 // Helper: Construir query SQL para obtener sesiones
 function buildSessionsQuery(limit: number = 30) {
@@ -23,24 +26,66 @@ function buildSessionsQuery(limit: number = 30) {
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    // 1. Validar request
-    const body: AIAnalysisRequest = await request.json();
-    const { analysisTypes, sessionLimit = 30 } = body;
+  const modeRejection = rejectUnlessPrivateMode();
+  if (modeRejection) return modeRejection;
 
-    if (!analysisTypes || analysisTypes.length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Seleccioná al menos un tipo de análisis' },
-        { status: 400 }
-      );
+  try {
+    if (process.env.AI_ANALYSIS_ENABLED !== 'true') {
+      return withNoStore(NextResponse.json(
+        { success: false, error: 'AI analysis is temporarily unavailable' },
+        { status: 503 }
+      ));
     }
 
-    if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json(
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return withNoStore(NextResponse.json(
         { success: false, error: 'API key de IA no configurada' },
         { status: 500 }
-      );
+      ));
     }
+
+    const declaredLength = Number(request.headers.get('content-length') || '0');
+    if (declaredLength > MAX_REQUEST_BYTES) {
+      return withNoStore(NextResponse.json(
+        { success: false, error: 'Request body too large' },
+        { status: 413 }
+      ));
+    }
+
+    const rawBody = await request.text();
+    if (new TextEncoder().encode(rawBody).byteLength > MAX_REQUEST_BYTES) {
+      return withNoStore(NextResponse.json(
+        { success: false, error: 'Request body too large' },
+        { status: 413 }
+      ));
+    }
+
+    let body: unknown;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      return withNoStore(NextResponse.json(
+        { success: false, error: 'Invalid JSON body' },
+        { status: 400 }
+      ));
+    }
+
+    let validatedRequest: AIAnalysisRequest & { sessionLimit: number };
+    try {
+      validatedRequest = parseAIAnalysisRequest(body) as AIAnalysisRequest & { sessionLimit: number };
+    } catch (error) {
+      if (error instanceof AIRequestValidationError) {
+        return withNoStore(NextResponse.json(
+          { success: false, error: error.message },
+          { status: 400 }
+        ));
+      }
+      throw error;
+    }
+
+    const { analysisTypes, sessionLimit } = validatedRequest;
+    const openai = new OpenAI({ apiKey, maxRetries: 1, timeout: 45_000 });
 
     // 2. Obtener sesiones de la DB
     const { sql, params } = buildSessionsQuery(sessionLimit);
@@ -48,10 +93,10 @@ export async function POST(request: NextRequest) {
     const sessions = rows.map(rowToSession);
 
     if (sessions.length === 0) {
-      return NextResponse.json(
+      return withNoStore(NextResponse.json(
         { success: false, error: 'No hay sesiones para analizar' },
         { status: 400 }
-      );
+      ));
     }
 
     // 3. Obtener perfil de usuario (si existe)
@@ -61,12 +106,12 @@ export async function POST(request: NextRequest) {
       const profileRows = await executeQuery<UserProfileRow>(profileSql, []);
       if (profileRows.length > 0) {
         profile = rowToProfile(profileRows[0]);
-        console.log('✅ Perfil de usuario encontrado:', profile.level, profile.mainGoal);
+        console.log('User profile loaded for AI analysis');
       } else {
         console.log('ℹ️  No hay perfil de usuario, análisis será genérico');
       }
-    } catch (error) {
-      console.warn('⚠️  Error al obtener perfil, continuando sin personalización:', error);
+    } catch {
+      console.warn('Profile unavailable; continuing without personalization');
       // Continuar sin perfil
     }
 
@@ -129,21 +174,24 @@ export async function POST(request: NextRequest) {
     console.log('✅ Paso 2 completado');
 
     // 7. Retornar respuesta con ambos pasos
-    return NextResponse.json({
+    return withNoStore(NextResponse.json({
       success: true,
       dataAnalysis,
       insights,
       sessionCount: sessions.length
-    });
+    }));
 
-  } catch (error: any) {
-    console.error('AI Analysis error:', error);
-    return NextResponse.json(
+  } catch (error) {
+    console.error(
+      'AI analysis failed:',
+      error instanceof Error ? error.name : 'UnknownError'
+    );
+    return withNoStore(NextResponse.json(
       {
         success: false,
-        error: error.message || 'Error al procesar análisis'
+        error: 'Unable to complete AI analysis'
       },
       { status: 500 }
-    );
+    ));
   }
 }

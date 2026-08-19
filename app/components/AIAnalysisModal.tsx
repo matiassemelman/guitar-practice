@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ANALYSIS_TYPE_INFO } from '@/types/ai-analysis';
 import type { AnalysisType } from '@/types/ai-analysis';
+import SafeAnalysisText from '@/app/components/SafeAnalysisText';
 
 interface AIAnalysisModalProps {
   isOpen: boolean;
@@ -218,16 +219,7 @@ export default function AIAnalysisModal({ isOpen, onClose }: AIAnalysisModalProp
               {/* Sección 2: Insights */}
               <div className="bg-black/30 border border-neon-cyan/20 rounded-lg p-6">
                 <h2 className="text-neon-cyan text-xl font-bold mb-4">💡 Insights Personalizados</h2>
-                <div
-                  className="prose prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{
-                    __html: analysis
-                      .replace(/^## (.*)/gm, '<h2 class="text-neon-magenta text-xl font-bold mt-6 mb-3">$1</h2>')
-                      .replace(/^### (.*)/gm, '<h3 class="text-neon-cyan text-lg font-semibold mt-4 mb-2">$1</h3>')
-                      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-neon-yellow font-bold">$1</strong>')
-                      .replace(/\n/g, '<br />')
-                  }}
-                />
+                <SafeAnalysisText content={analysis} />
               </div>
 
               <div className="text-xs text-gray-500 text-right">

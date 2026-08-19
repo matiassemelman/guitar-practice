@@ -33,6 +33,7 @@ import {
   ApiErrorCode,
   isTechnicalFocus,
 } from '@/types';
+import { rejectUnlessPrivateMode } from '@/lib/api-guard';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +48,9 @@ export const dynamic = 'force-dynamic';
  * - offset: Offset para paginación (default: 0)
  */
 export async function GET(request: NextRequest) {
+  const modeRejection = rejectUnlessPrivateMode();
+  if (modeRejection) return modeRejection;
+
   try {
     const searchParams = request.nextUrl.searchParams;
 
@@ -178,9 +182,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       createErrorResponse(
         ApiErrorCode.DATABASE_ERROR,
-        error instanceof Error
-          ? error.message
-          : 'Error al obtener sesiones de la base de datos'
+        'Error al obtener sesiones de la base de datos'
       ),
       { status: 500 }
     );
@@ -194,6 +196,9 @@ export async function GET(request: NextRequest) {
  * Retorna la sesión creada + mensaje de insight motivacional
  */
 export async function POST(request: NextRequest) {
+  const modeRejection = rejectUnlessPrivateMode();
+  if (modeRejection) return modeRejection;
+
   try {
     // Parsear body
     let body: unknown;
@@ -250,9 +255,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       createErrorResponse(
         ApiErrorCode.DATABASE_ERROR,
-        error instanceof Error
-          ? error.message
-          : 'Error al crear sesión en la base de datos'
+        'Error al crear sesión en la base de datos'
       ),
       { status: 500 }
     );

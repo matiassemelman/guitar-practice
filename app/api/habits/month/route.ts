@@ -5,8 +5,12 @@ import {
   HabitsMonthResponse,
   dbRowToApiResponse,
 } from '@/types/habits';
+import { rejectUnlessPrivateMode } from '@/lib/api-guard';
 
 export async function GET(request: NextRequest) {
+  const modeRejection = rejectUnlessPrivateMode();
+  if (modeRejection) return modeRejection;
+
   try {
     const { searchParams } = new URL(request.url);
     const monthParam = searchParams.get('month') || getCurrentMonth();

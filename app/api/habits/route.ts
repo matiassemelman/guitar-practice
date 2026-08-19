@@ -8,12 +8,16 @@ import {
   createEmptyHabits,
   getTodayDateString,
 } from '@/types/habits';
+import { rejectUnlessPrivateMode } from '@/lib/api-guard';
 
 // ============================================
 // GET /api/habits?date=YYYY-MM-DD
 // ============================================
 
 export async function GET(request: NextRequest) {
+  const modeRejection = rejectUnlessPrivateMode();
+  if (modeRejection) return modeRejection;
+
   try {
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get('date') || getTodayDateString();
@@ -56,6 +60,9 @@ export async function GET(request: NextRequest) {
 // ============================================
 
 export async function POST(request: NextRequest) {
+  const modeRejection = rejectUnlessPrivateMode();
+  if (modeRejection) return modeRejection;
+
   try {
     const body: DailyHabitsInput = await request.json();
 

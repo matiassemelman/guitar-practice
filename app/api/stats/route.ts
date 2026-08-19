@@ -24,6 +24,7 @@ import {
   createErrorResponse,
   ApiErrorCode,
 } from '@/types';
+import { rejectUnlessPrivateMode } from '@/lib/api-guard';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,6 +77,9 @@ function calculateStreak(practiceDates: string[]): number {
  * - totalMinutes: Total de minutos de todos los tiempos
  */
 export async function GET() {
+  const modeRejection = rejectUnlessPrivateMode();
+  if (modeRejection) return modeRejection;
+
   try {
     // Query 1: Estadísticas semanales
     const weeklyStatsSql = buildWeeklyStatsQuery();
@@ -130,9 +134,7 @@ export async function GET() {
     return NextResponse.json(
       createErrorResponse(
         ApiErrorCode.DATABASE_ERROR,
-        error instanceof Error
-          ? error.message
-          : 'Error al obtener estadísticas de la base de datos'
+        'Error al obtener estadísticas de la base de datos'
       ),
       { status: 500 }
     );

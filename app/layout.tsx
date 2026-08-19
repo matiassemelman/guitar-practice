@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -8,8 +8,12 @@ export const metadata: Metadata = {
   authors: [{ name: "Deliberate Guitar" }],
   creator: "Deliberate Guitar",
   robots: "noindex, nofollow", // Uso personal, no indexar
-  viewport: "width=device-width, initial-scale=1",
-  themeColor: "#FF00FF", // neon-magenta
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#FF00FF",
 };
 
 export default function RootLayout({

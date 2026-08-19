@@ -24,6 +24,7 @@ import {
   createErrorResponse,
   ApiErrorCode,
 } from '@/types';
+import { rejectUnlessPrivateMode } from '@/lib/api-guard';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const modeRejection = rejectUnlessPrivateMode();
+  if (modeRejection) return modeRejection;
+
   try {
     const { id } = await params;
     const sessionId = parseInt(id, 10);
@@ -79,9 +83,7 @@ export async function GET(
     return NextResponse.json(
       createErrorResponse(
         ApiErrorCode.DATABASE_ERROR,
-        error instanceof Error
-          ? error.message
-          : 'Error al obtener sesión de la base de datos'
+        'Error al obtener sesión de la base de datos'
       ),
       { status: 500 }
     );
@@ -96,6 +98,9 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const modeRejection = rejectUnlessPrivateMode();
+  if (modeRejection) return modeRejection;
+
   try {
     const { id } = await params;
     const sessionId = parseInt(id, 10);
@@ -186,9 +191,7 @@ export async function PUT(
     return NextResponse.json(
       createErrorResponse(
         ApiErrorCode.DATABASE_ERROR,
-        error instanceof Error
-          ? error.message
-          : 'Error al actualizar sesión en la base de datos'
+        'Error al actualizar sesión en la base de datos'
       ),
       { status: 500 }
     );
@@ -203,6 +206,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const modeRejection = rejectUnlessPrivateMode();
+  if (modeRejection) return modeRejection;
+
   try {
     const { id } = await params;
     const sessionId = parseInt(id, 10);
@@ -245,9 +251,7 @@ export async function DELETE(
     return NextResponse.json(
       createErrorResponse(
         ApiErrorCode.DATABASE_ERROR,
-        error instanceof Error
-          ? error.message
-          : 'Error al eliminar sesión de la base de datos'
+        'Error al eliminar sesión de la base de datos'
       ),
       { status: 500 }
     );
