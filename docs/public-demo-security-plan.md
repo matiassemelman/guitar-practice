@@ -74,7 +74,7 @@ OpenAI y la credencial Neon actuales, aceptando downtime temporal.
 
 ### 1. Runtime fail-closed
 
-Crear `lib/app-mode.ts` y un `middleware.ts` compatible con Next 15.
+Crear `lib/app-mode.ts` y un `proxy.ts` compatible con Next 16.
 
 - Admitir sólo `APP_MODE=demo` o `APP_MODE=private`.
 - Valor ausente o inválido: no permitir DB, OpenAI ni APIs.

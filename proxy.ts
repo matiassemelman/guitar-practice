@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { canUsePrivateApi } from '@/lib/app-mode.mjs';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   if (!canUsePrivateApi()) {
     return NextResponse.json(
       { success: false, error: 'Not found' },

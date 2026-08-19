@@ -61,7 +61,17 @@ test('AI output has no raw HTML sink', async () => {
 
 test('public demo is fixture-only and the DB diagnostic route is absent', async () => {
   const demo = await readFile('app/components/PublicDemo.tsx', 'utf8');
+  const proxy = await readFile('proxy.ts', 'utf8');
 
   assert.doesNotMatch(demo, /fetch\s*\(|\/api\//);
+  assert.match(proxy, /canUsePrivateApi/);
+  assert.match(proxy, /\/api\/:path\*/);
   await assert.rejects(access('app/api/test/route.ts'));
+});
+
+test('tracked implementation docs contain placeholders, not provider keys', async () => {
+  const implementationDoc = await readFile('docs/IMPLEMENTACION-COACH-IA.md', 'utf8');
+
+  assert.doesNotMatch(implementationDoc, /ANTHROPIC_API_KEY=sk-ant-/);
+  assert.doesNotMatch(implementationDoc, /OPENAI_API_KEY=sk-/);
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { HabitsMonthResponse, DailyHabitsResponse } from '@/types/habits';
 
 interface DayCellProps {
@@ -116,11 +116,7 @@ export default function HabitsCalendar() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  useEffect(() => {
-    fetchMonthData();
-  }, [currentMonth]);
-
-  const fetchMonthData = async () => {
+  const fetchMonthData = useCallback(async () => {
     try {
       setIsLoading(true);
       const res = await fetch(`/api/habits/month?month=${currentMonth}`);
@@ -133,7 +129,11 @@ export default function HabitsCalendar() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentMonth]);
+
+  useEffect(() => {
+    fetchMonthData();
+  }, [fetchMonthData]);
 
   const goToPrevMonth = () => {
     const [year, month] = currentMonth.split('-').map(Number);

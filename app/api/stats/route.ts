@@ -42,7 +42,7 @@ function calculateStreak(practiceDates: string[]): number {
   today.setHours(0, 0, 0, 0);
 
   let streak = 0;
-  let currentDate = new Date(today);
+  const currentDate = new Date(today);
 
   for (const dateStr of practiceDates) {
     const practiceDate = new Date(dateStr);

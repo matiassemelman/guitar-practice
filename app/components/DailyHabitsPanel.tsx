@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DailyHabitsResponse, HabitData, ChordsHabitData, getTodayDateString } from '@/types/habits';
 
 interface HabitItemProps {
@@ -102,12 +102,7 @@ export default function DailyHabitsPanel() {
 
   const today = getTodayDateString();
 
-  // Fetch hábitos del día actual
-  useEffect(() => {
-    fetchHabits();
-  }, []);
-
-  const fetchHabits = async () => {
+  const fetchHabits = useCallback(async () => {
     try {
       setIsLoading(true);
       const res = await fetch(`/api/habits?date=${today}`);
@@ -122,7 +117,12 @@ export default function DailyHabitsPanel() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [today]);
+
+  // Fetch hábitos del día actual
+  useEffect(() => {
+    fetchHabits();
+  }, [fetchHabits]);
 
   const handleSave = async () => {
     if (!habits) return;

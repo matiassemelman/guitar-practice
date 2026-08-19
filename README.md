@@ -64,7 +64,7 @@ The deployment and rotation runbook lives in
 
 ## Stack
 
-- Next.js 15, React 19 and TypeScript
+- Next.js 16, React 19 and TypeScript
 - Neon PostgreSQL
 - OpenAI API
 - Tailwind CSS

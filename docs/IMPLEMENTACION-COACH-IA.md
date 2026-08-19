@@ -150,7 +150,7 @@ npm install @anthropic-ai/sdk
 **Acción**: AGREGAR
 
 ```
-ANTHROPIC_API_KEY=sk-ant-api01-tu-clave-aqui
+ANTHROPIC_API_KEY=replace-with-a-private-environment-value
 ```
 
 ### 2.3. Crear `/app/api/ai-analysis/route.ts`
